@@ -2,4 +2,4 @@
 
 namespace BugIssuer.Domain.Events;
 
-public record IssueUpdatedEvent(int IssueId) : IDomainEvent;
+public record IssueUpdatedEvent(int IssueId, string Title, string Description, string Category) : IDomainEvent;

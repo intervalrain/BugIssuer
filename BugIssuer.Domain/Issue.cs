@@ -57,4 +57,9 @@ public class Issue : Entity
 
 		return Result.Success;
 	}
+
+    public ErrorOr<Success> Update(string title, string description, string category)
+    {
+        throw new NotImplementedException();
+    }
 }
