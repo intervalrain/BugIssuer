@@ -14,6 +14,8 @@
     <None Remove="Issuer\Commands\RemoveIssue\" />
     <None Remove="Issuer\Commands\UpdateIssue\" />
     <None Remove="Common\Behaviors\" />
+    <None Remove="Issuer\Queries\GetIssue\" />
+    <None Remove="Issuer\Queries\ListIssues\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Issuer\" />
@@ -25,6 +27,8 @@
     <Folder Include="Issuer\Commands\RemoveIssue\" />
     <Folder Include="Issuer\Commands\UpdateIssue\" />
     <Folder Include="Common\Behaviors\" />
+    <Folder Include="Issuer\Queries\GetIssue\" />
+    <Folder Include="Issuer\Queries\ListIssues\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="2.0.1" />
