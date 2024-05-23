@@ -5,14 +5,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="DbContexts\" />
+    <None Remove="Common\" />
+    <None Remove="Common\Persistance\" />
+    <None Remove="Common\Middleware\" />
+    <None Remove="Issuer\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DbContexts\" />
+    <Folder Include="Common\" />
+    <Folder Include="Common\Persistance\" />
+    <Folder Include="Common\Middleware\" />
+    <Folder Include="Issuer\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="8.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
   </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
