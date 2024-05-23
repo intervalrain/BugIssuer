@@ -9,12 +9,16 @@
     <None Remove="Common\Persistance\" />
     <None Remove="Common\Middleware\" />
     <None Remove="Issuer\" />
+    <None Remove="Issuer\Persistence\" />
+    <None Remove="Common\Services\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\" />
     <Folder Include="Common\Persistance\" />
     <Folder Include="Common\Middleware\" />
     <Folder Include="Issuer\" />
+    <Folder Include="Issuer\Persistence\" />
+    <Folder Include="Common\Services\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />

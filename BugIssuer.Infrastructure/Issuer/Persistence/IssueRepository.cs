@@ -4,7 +4,7 @@ using BugIssuer.Infrastructure.Common.Persistance;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace BugIssuer.Infrastructure.Issuer;
+namespace BugIssuer.Infrastructure.Issuer.Persistence;
 
 public class IssueRepository : IIssueRepository
 {
