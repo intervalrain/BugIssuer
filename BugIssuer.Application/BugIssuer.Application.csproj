@@ -9,7 +9,6 @@
     <None Remove="Common\" />
     <None Remove="Common\Interfaces\" />
     <None Remove="Issuer\Commands\" />
-    <None Remove="Issuer\Events\" />
     <None Remove="Issuer\Queries\" />
     <None Remove="Issuer\Commands\CreateIssue\" />
     <None Remove="Issuer\Commands\RemoveIssue\" />
@@ -21,7 +20,6 @@
     <Folder Include="Common\" />
     <Folder Include="Common\Interfaces\" />
     <Folder Include="Issuer\Commands\" />
-    <Folder Include="Issuer\Events\" />
     <Folder Include="Issuer\Queries\" />
     <Folder Include="Issuer\Commands\CreateIssue\" />
     <Folder Include="Issuer\Commands\RemoveIssue\" />

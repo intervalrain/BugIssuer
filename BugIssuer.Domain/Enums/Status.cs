@@ -5,5 +5,6 @@ public enum Status
 	Waiting,	
 	Ongoing,
     Done,
+	Removed
 }
 

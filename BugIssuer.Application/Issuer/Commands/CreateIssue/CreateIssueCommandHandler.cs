@@ -26,6 +26,7 @@ public class CreateIssueCommandHandler : IRequestHandler<CreateIssueCommand, Err
             issueId,
             request.Title,
             request.Category,
+            request.AuthorId,
             request.Author,
             _dateTimeProvider.UtcNow);
 
