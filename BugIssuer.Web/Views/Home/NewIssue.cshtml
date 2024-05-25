@@ -5,10 +5,6 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>New Issue</h2>
-        <div>
-            <a href="../Home/Issues" class="btn btn-light">Quit</a>
-            <button class="btn btn-success">Post</button>
-        </div>
     </div>
 
     <div class="card mb-3">
@@ -25,6 +21,7 @@
         </div>
         <div class="card-body">
             <textarea id="description" placeholder="Enter description"></textarea>
+            <button class="btn btn-success">Post</button>
         </div>
     </div>
 </div>
@@ -33,8 +30,58 @@
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
-<script>var simplemde = new SimpleMDE({
-    element: document.getElementById("description"),
-    spellChecker: false,
-    status: false,
-});</script>
+<script>
+    var simplemde = new SimpleMDE({
+        element: document.getElementById("new-comment"),
+        spellChecker: false,
+        status: false,
+    });
+
+    simplemde.codemirror.on("drop", function (editor, event) {
+        event.preventDefault();
+        var files = event.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    simplemde.codemirror.on("paste", function (editor, event) {
+        var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+        for (var index in items) {
+            var item = items[index];
+            if (item.kind === 'file') {
+                var blob = item.getAsFile();
+                handleFiles([blob]);
+            }
+        }
+    });
+
+    function handleFiles(files) {
+        for (var i = 0; i < files.length; i++) {
+            uploadFile(files[i]);
+        }
+    }
+
+    function uploadFile(file) {
+        var formData = new FormData();
+        formData.append("file", file);
+
+        fetch('/Home/UploadImage', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var cm = simplemde.codemirror;
+                    var doc = cm.getDoc();
+                    var cursor = doc.getCursor();
+                    doc.replaceRange("![Image](" + data.url + ")", cursor);
+                } else {
+                    alert("Failed to upload image");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Failed to upload image");
+            });
+    }
+</script>

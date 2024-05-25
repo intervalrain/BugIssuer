@@ -1,4 +1,5 @@
 ﻿@using BugIssuer.Domain;
+@using BugIssuer.Domain.Enums;
 @model Issue
 
 @{
@@ -20,7 +21,7 @@
             <div class="d-flex justify-content-between">
                 <div>
                     <span class="badge badge-secondary">@Model.Category</span>
-                    <span class="badge {@Model.Status.}">@Model.Status</span>
+                    <span class="badge @Model.Status.Badge()">@Model.Status</span>
                 </div>
                 <div class="text-muted">
                     <div>@Model.Author</div>
@@ -30,8 +31,7 @@
             </div>
         </div>
         <div class="card-body">
-            <p><strong>Assignee:</strong> @Model.Assignee</p>
-            <p><strong>Description:</strong> @Model.Description</p>
+            <p>@Model.Description</p>
         </div>
         @foreach (var comment in Model.Comments)
         {
@@ -53,16 +53,68 @@
         }
         <div class="card-footer">
             <textarea id="new-comment" placeholder="Enter Comment"></textarea>
+            <div class="d-flex justify-content-between align-items-right mb-3">
+                <div>
+                    <button class="btn btn-success">Post</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
 <script>var simplemde = new SimpleMDE({
-    element: document.getElementById("new-comment"),
-    spellChecker: false,
-    status: false,
-});</script>
+        element: document.getElementById("new-comment"),
+        spellChecker: false,
+        status: false,
+    });
+
+    simplemde.codemirror.on("drop", function (editor, event) {
+        event.preventDefault();
+        var files = event.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    simplemde.codemirror.on("paste", function (editor, event) {
+        var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+        for (var index in items) {
+            var item = items[index];
+            if (item.kind === 'file') {
+                var blob = item.getAsFile();
+                handleFiles([blob]);
+            }
+        }
+    });
+
+    function handleFiles(files) {
+        for (var i = 0; i < files.length; i++) {
+            uploadFile(files[i]);
+        }
+    }
+
+    function uploadFile(file) {
+        var formData = new FormData();
+        formData.append("file", file);
+
+        fetch('/Home/UploadImage', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var cm = simplemde.codemirror;
+                    var doc = cm.getDoc();
+                    var cursor = doc.getCursor();
+                    doc.replaceRange("![Image](" + data.url + ")", cursor);
+                } else {
+                    alert("Failed to upload image");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Failed to upload image");
+            });
+    }</script>

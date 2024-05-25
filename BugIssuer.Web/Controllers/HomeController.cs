@@ -11,11 +11,13 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly ISender _sender;
+    private readonly IWebHostEnvironment _environment;
 
-    public HomeController(ILogger<HomeController> logger, ISender sender)
+    public HomeController(ILogger<HomeController> logger, ISender sender, IWebHostEnvironment environment)
     {
         _logger = logger;
         _sender = sender;
+        _environment = environment;
     }
 
     public IActionResult Index()
@@ -72,6 +74,28 @@ public class HomeController : Controller
     public IActionResult NewIssue()
     {
         return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return Json(new { success = false, message = "No file selected" });
+
+        var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+        if (!Directory.Exists(uploadsFolder))
+            Directory.CreateDirectory(uploadsFolder);
+
+        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        var filePath = Path.Combine(uploadsFolder, fileName);
+
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(fileStream);
+        }
+
+        var fileUrl = Url.Content("~/uploads/" + fileName);
+        return Json(new { success = true, url = fileUrl });
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
