@@ -20,16 +20,12 @@ public class CreateIssueCommandHandler : IRequestHandler<CreateIssueCommand, Err
 
     public async Task<ErrorOr<Issue>> Handle(CreateIssueCommand request, CancellationToken cancellationToken)
     {
-        int issueId = await _issueRepository.CountIssuesAsync(cancellationToken) + 1;
-
-        var issue = new Issue(
-            issueId,
+        var issue = Issue.Create(
             request.Title,
             request.Category,
             request.AuthorId,
             request.Author,
-            request.Description,
-            _dateTimeProvider.UtcNow);
+            request.Description);
 
         await _issueRepository.AddIssueAsync(issue, cancellationToken);
 

@@ -20,7 +20,7 @@ public class ListIssuesQueryHandler : IRequestHandler<ListIssuesQuery, ErrorOr<L
     public async Task<ErrorOr<List<Issue>>> Handle(ListIssuesQuery request, CancellationToken cancellationToken)
     {
         List<Issue> issues = default;
-        if (request.filterStatus == "All")
+        if (request.filterStatus == "All" || string.IsNullOrEmpty(request.filterStatus))
         {
             issues = await _issueRepository.ListIssuesAsync(cancellationToken);
         }

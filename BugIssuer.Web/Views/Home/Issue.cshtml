@@ -6,34 +6,63 @@
 }
 
 <div class="container">
-    <h2>Issue Description</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Issue Description</h2>
+        <div>
+            <button class="btn btn-outline-primary">Edit</button>
+            <button class="btn btn-danger">Delete</button>
+        </div>
+    </div>
+
     <div class="card mb-3">
         <div class="card-header">
             <h3>@Model.Title</h3>
             <div class="d-flex justify-content-between">
                 <div>
                     <span class="badge badge-secondary">@Model.Category</span>
-                    <span class="badge badge-info">@Model.Status</span>
+                    <span class="badge {@Model.Status.}">@Model.Status</span>
                 </div>
                 <div class="text-muted">
-                    <div>DateTime: @Model.DateTime</div>
-                    <div>Last Update: @Model.LastUpdate</div>
+                    <div>@Model.Author</div>
+                    <div>@Model.LastUpdateDate</div>
+                    <div>@Model.LastUpdateTime</div>
                 </div>
             </div>
         </div>
         <div class="card-body">
-            <p><strong>Author:</strong> @Model.Author</p>
             <p><strong>Assignee:</strong> @Model.Assignee</p>
             <p><strong>Description:</strong> @Model.Description</p>
-            <p>
-                <strong>Comments:</strong>
-                @foreach (var comment in Model.Comments)
-                {
-                    <ul>
-                        <li>@comment.Content</li>
-                    </ul>
-                }
-            </p>
+        </div>
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <span class="comment-id">
+                        <h5># @comment.CommentId</h5>
+                    </span>
+                    <span class="text-muted">
+                        <div>@comment.Author</div>
+                        <div>@comment.LastUpdateDate</div>
+                        <div>@comment.LastUpdateTime</div>
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p>@comment.Content</p>
+            </div>
+        }
+        <div class="card-footer">
+            <textarea id="new-comment" placeholder="Enter Comment"></textarea>
         </div>
     </div>
 </div>
+
+
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+
+<script>var simplemde = new SimpleMDE({
+    element: document.getElementById("new-comment"),
+    spellChecker: false,
+    status: false,
+});</script>

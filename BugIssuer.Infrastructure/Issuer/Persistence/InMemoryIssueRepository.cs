@@ -12,14 +12,26 @@ public class InMemoryIssueRepository : IIssueRepository
 
     private async Task AddFakeData()
     {
-        await AddIssueAsync(new Issue(_issueCount + 1, "test1", "Raw Data", "00012415", "Yao", "test1", DateTime.UtcNow), CancellationToken.None);
-        await AddIssueAsync(new Issue(_issueCount + 1, "test2", "Query UI", "00012415", "Yao", "test2", DateTime.UtcNow), CancellationToken.None);
-        await AddIssueAsync(new Issue(_issueCount + 1, "test3", "Wafer Map", "00012415", "Yao", "test3", DateTime.UtcNow), CancellationToken.None);
-        await AddIssueAsync(new Issue(_issueCount + 1, "test4", "Contour Plot", "00012415", "Yao", "test4", DateTime.UtcNow), CancellationToken.None);
-        await AddIssueAsync(new Issue(_issueCount + 1, "test1", "Raw Data", "00012415", "Yao", "test1", DateTime.UtcNow), CancellationToken.None);
-        var issue = _dbContext[1];
-        issue.Comments.Add(new Comment(1, issue.IssueId, "00053997", "Rain Hu", "Hello", DateTime.UtcNow));
-        issue.Comments.Add(new Comment(1, issue.IssueId, "00053997", "Rain Hu", "Yao sir, Can you describe the issue in detail?", DateTime.UtcNow));
+        var issues = new List<Issue>
+        {
+            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test1"),
+            Issue.Create("test2", "Query UI", "00012415", "Yao", "test2"),
+            Issue.Create("test3", "Wafer Map", "00012415", "Yao", "test3"),
+            Issue.Create("test4", "Contour Plot", "00012415", "Yao", "test4"),
+            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test5")
+        };
+        await AddIssueAsync(issues[0], CancellationToken.None);
+        await AddIssueAsync(issues[1], CancellationToken.None);
+        await AddIssueAsync(issues[2], CancellationToken.None);
+        await AddIssueAsync(issues[3], CancellationToken.None);
+        await AddIssueAsync(issues[4], CancellationToken.None);
+
+        issues[0].AddComment("00053997", "Rain Hu", "Hello");
+        issues[0].AddComment("00053997", "Rain Hu", "Yao sir, Can you describe the issue in detail?");
+
+        issues[1].Close();
+        issues[2].Assign("Kun");
+        issues[3].Assign("Yue");
     }
 
     public InMemoryIssueRepository()

@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Issue";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>New Issue</h2>
+        <div>
+            <a href="../Home/Issues" class="btn btn-light">Quit</a>
+            <button class="btn btn-success">Post</button>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" class="form-control" placeholder="Enter title">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <input type="text" id="category" class="form-control" placeholder="Enter category">
+            </div>
+        </div>
+        <div class="card-body">
+            <textarea id="description" placeholder="Enter description"></textarea>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+
+<script>var simplemde = new SimpleMDE({
+    element: document.getElementById("description"),
+    spellChecker: false,
+    status: false,
+});</script>

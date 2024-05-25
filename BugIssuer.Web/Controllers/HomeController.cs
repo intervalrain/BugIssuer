@@ -33,6 +33,11 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Profile()
+    {
+        return View();
+    }
+
     public IActionResult Issues(string sortOrder, string filterStatus)
     {
         var query = new ListIssuesQuery(sortOrder, filterStatus);
@@ -55,11 +60,6 @@ public class HomeController : Controller
         return View(result.Value);
     }
 
-    public IActionResult Profile()
-    {
-        return View();
-    }
-
     public IActionResult Issue(int id)
     {
         var query = new GetIssueQuery(id);
@@ -67,6 +67,11 @@ public class HomeController : Controller
         var issue = _sender.Send(query).GetAwaiter().GetResult();
 
         return View(issue.Value);
+    }
+
+    public IActionResult NewIssue()
+    {
+        return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

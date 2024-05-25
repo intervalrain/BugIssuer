@@ -9,21 +9,24 @@ namespace BugIssuer.Domain;
 public class Issue : Entity
 {
 	public int IssueId { get; }
-	public string Title { get; set; }
-	public string Description { get; set; }
-	public string Category { get; set; }
+	public string Title { get; private set; }
+	public string Description { get; private set; }
+	public string Category { get; private set; }
 	public string AuthorId { get; }
 	public string Author { get; }
 	public DateTime DateTime { get; }
-	public DateTime LastUpdate { get; set; } 
-	public string Assignee { get; set; }
-	public Status Status { get; set; }
-	public List<Comment> Comments { get; set; }
+	public DateTime LastUpdate { get; private set; } 
+	public string Assignee { get; private set; }
+	public Status Status { get; private set; }
+	public List<Comment> Comments { get; }
 
 	public DateOnly Date => DateOnly.FromDateTime(DateTime);
     public DateOnly LastUpdateDate => DateOnly.FromDateTime(LastUpdate);
 
-    public Issue(int id, string title, string category, string authorId, string author, string description, DateTime dateTime)
+	public TimeOnly Time => TimeOnly.FromDateTime(DateTime);
+	public TimeOnly LastUpdateTime => TimeOnly.FromDateTime(LastUpdate); 
+
+    internal Issue(int id, string title, string category, string authorId, string author, string description, DateTime dateTime)
 		: base(Guid.NewGuid())
 	{
 		IssueId = id;
@@ -37,6 +40,13 @@ public class Issue : Entity
 		Assignee = string.Empty;
 		Status = Status.Open;
 		Comments = new List<Comment>();
+	}
+
+	private static int _issueCount = 0; 
+
+	public static Issue Create(string title, string category, string authorId, string author, string description)
+	{
+		return new Issue(++_issueCount, title, category, authorId, author, description, DateTime.UtcNow);
 	}
 
 	public ErrorOr<Success> Remove()
@@ -78,9 +88,52 @@ public class Issue : Entity
 		Title = title;
 		Description = description;
 		Category = category;
+		LastUpdate = DateTime.UtcNow;
 
-        _domainEvents.Add(new IssueUpdatedEvent(IssueId, title, description, category));
+        _domainEvents.Add(new IssueUpdatedEvent(IssueId, title, description, category, LastUpdate));
 
         return Result.Success;
     }
+
+	public ErrorOr<Success> AddComment(string authorId, string author, string content)
+	{
+		if (Status == Status.Deleted)
+		{
+			return Error.NotFound(description: "The issue has already been deleted.");
+		}
+		Comments.Add(new Comment(Comments.Count + 1, IssueId, authorId, author, content, DateTime.UtcNow));
+
+		return Result.Success;
+	}
+
+	public ErrorOr<Success> Assign(string assignee)
+	{
+        if (Status != Status.Open && Status != Status.Ongoing)
+		{
+            return Error.Conflict("Please reopen the issue before accept the issue.");
+        }
+		Status = Status.Ongoing;
+		Assignee = assignee;
+
+		return Result.Success;
+	}
+
+	public ErrorOr<Success> Reopen()
+	{
+		if (Status != Status.Closed)
+		{
+			return Error.Conflict($"{Status} cannot be reopen.");
+		}
+		
+		Status = string.IsNullOrEmpty(Assignee) ? Status.Open : Status.Ongoing;
+
+		return Result.Success;
+	}
+
+	public ErrorOr<Success> Close()
+	{
+		Status = Status.Closed;
+
+		return Result.Success;
+	}
 }

@@ -6,7 +6,7 @@ public class Comment : Entity
 {
     public int CommentId { get; }
     public int IssueId { get; }
-    public string Content { get; set; }
+    public string Content { get; }
     public string AuthorId { get; }
     public string Author { get; }
     public DateTime DateTime { get; }
@@ -15,6 +15,8 @@ public class Comment : Entity
     public DateOnly Date => DateOnly.FromDateTime(DateTime);
     public DateOnly LastUpdateDate => DateOnly.FromDateTime(LastUpdate);
 
+    public TimeOnly Time => TimeOnly.FromDateTime(DateTime);
+    public TimeOnly LastUpdateTime => TimeOnly.FromDateTime(LastUpdate);
 
     public Comment(int id, int issueId, string authorId, string author, string content, DateTime dateTime)
         : base(Guid.NewGuid())

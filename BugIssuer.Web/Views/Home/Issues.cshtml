@@ -1,7 +1,14 @@
 ﻿@using BugIssuer.Domain;
+@using BugIssuer.Domain.Enums;
 @model IEnumerable<Issue>
 @{
     ViewData["Title"] = "Issues";
+    var currentSort = Convert.ToString(ViewData["CurrentSort"]);
+    var currentFilter = Convert.ToString(ViewData["CurrentFilter"]);
+    var btnAll = string.IsNullOrEmpty(currentFilter) || currentFilter == "All" ? "btn-primary" : "btn-light";
+    var btnOpen = currentFilter == "Open" ? "btn-primary" : "btn-light";
+    var btnOngoing = currentFilter == "Ongoing" ? "btn-primary" : "btn-light";
+    var btnClosed = currentFilter == "Closed" ? "btn-primary" : "btn-light";
 }
 
 <div class="container">
@@ -10,15 +17,15 @@
         <div>
             <button class="btn btn-outline-primary">Import</button>
             <button class="btn btn-outline-primary">Export</button>
-            <button class="btn btn-success">New Issue</button>
+            <a href="/Home/NewIssue" class="btn btn-success">New Issue</a>
         </div>
     </div>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <a href="/Home/Issues?filterStatus=All&sortOrder=@ViewData["CurrentSort"]" class="btn btn-light">All</a>
-            <a href="/Home/Issues?filterStatus=Open&sortOrder=@ViewData["CurrentSort"]" class="btn btn-light">Open</a>
-            <a href="/Home/Issues?filterStatus=Ongoing&sortOrder=@ViewData["CurrentSort"]" class="btn btn-light">Ongoing</a>
-            <a href="/Home/Issues?filterStatus=Closed&sortOrder=@ViewData["CurrentSort"]" class="btn btn-light">Closed</a>
+            <a href="/Home/Issues?filterStatus=All&sortOrder=@currentSort" class="btn @btnAll">All</a>
+            <a href="/Home/Issues?filterStatus=Open&sortOrder=@currentSort" class="btn @btnOpen">Open</a>
+            <a href="/Home/Issues?filterStatus=Ongoing&sortOrder=@currentSort" class="btn @btnOngoing">Ongoing</a>
+            <a href="/Home/Issues?filterStatus=Closed&sortOrder=@currentSort" class="btn @btnClosed">Closed</a>
         </div>
         <div class="input-group w-25">
             <input type="text" class="form-control" placeholder="Search issues...">
@@ -31,15 +38,15 @@
         <table class="table table-hover table-striped">
             <thead>
                 <tr>
-                    <th><a href="?sortOrder=@ViewData["IdSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Issue Id</a></th>
-                    <th><a href="?sortOrder=@ViewData["CategorySortParm"]&filterStatus=@ViewData["CurrentFilter"]">Category</a></th>
-                    <th><a href="?sortOrder=@ViewData["TitleSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Title</a></th>
-                    <th><a href="?sortOrder=@ViewData["AuthorSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Author</a></th>
-                    <th><a href="?sortOrder=@ViewData["DateTimeSortParm"]&filterStatus=@ViewData["CurrentFilter"]">DateTime</a></th>
-                    <th><a href="?sortOrder=@ViewData["LastUpdateSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Last Update</a></th>
-                    <th><a href="?sortOrder=@ViewData["CommentsSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Comments</a></th>
-                    <th><a href="?sortOrder=@ViewData["AssigneeSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Assignee</a></th>
-                    <th><a href="?sortOrder=@ViewData["StatusSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Status</a></th>
+                    <th><a href="?sortOrder=@ViewData["IdSortParm"]&filterStatus=@currentFilter">Issue Id</a></th>
+                    <th><a href="?sortOrder=@ViewData["CategorySortParm"]&filterStatus=@currentFilter">Category</a></th>
+                    <th><a href="?sortOrder=@ViewData["TitleSortParm"]&filterStatus=@currentFilter">Title</a></th>
+                    <th><a href="?sortOrder=@ViewData["AuthorSortParm"]&filterStatus=@currentFilter">Author</a></th>
+                    <th><a href="?sortOrder=@ViewData["DateTimeSortParm"]&filterStatus=@currentFilter">DateTime</a></th>
+                    <th><a href="?sortOrder=@ViewData["LastUpdateSortParm"]&filterStatus=@currentFilter">Last Update</a></th>
+                    <th><a href="?sortOrder=@ViewData["CommentsSortParm"]&filterStatus=@currentFilter">Comments</a></th>
+                    <th><a href="?sortOrder=@ViewData["AssigneeSortParm"]&filterStatus=@currentFilter">Assignee</a></th>
+                    <th><a href="?sortOrder=@ViewData["StatusSortParm"]&filterStatus=@currentFilter">Status</a></th>
                 </tr>
             </thead>
             <tbody>
@@ -54,7 +61,7 @@
                         <td>@issue.LastUpdateDate</td>
                         <td>@issue.Comments.Count</td>
                         <td>@issue.Assignee</td>
-                        <td><span class="badge badge-warning">@issue.Status</span></td>
+                        <td><span class="badge @issue.Status.Badge()">@issue.Status</span></td>
                     </tr>
                 }
             </tbody>
@@ -63,10 +70,10 @@
 </div>
 
 <script>document.addEventListener("DOMContentLoaded", function () {
-    var rows = document.querySelectorAll(".clickable-row");
-    rows.forEach(function (row) {
-        row.addEventListener("click", function () {
-            window.location = row.getAttribute("data-href");
+        var rows = document.querySelectorAll(".clickable-row");
+        rows.forEach(function (row) {
+            row.addEventListener("click", function () {
+                window.location = row.getAttribute("data-href");
+            });
         });
-    });
-});</script>
+    });</script>
