@@ -15,10 +15,10 @@
     </div>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <button class="btn btn-light">All</button>
-            <button class="btn btn-light">Open</button>
-            <button class="btn btn-light">Ongoing</button>
-            <button class="btn btn-light">Closed</button>
+            <a href="/Home/Issues?filterStatus=All&sortOrder=@ViewData["CurrentSort"]" class="btn btn-light">All</a>
+            <a href="/Home/Issues?filterStatus=Open&sortOrder=@ViewData["CurrentSort"]" class="btn btn-light">Open</a>
+            <a href="/Home/Issues?filterStatus=Ongoing&sortOrder=@ViewData["CurrentSort"]" class="btn btn-light">Ongoing</a>
+            <a href="/Home/Issues?filterStatus=Closed&sortOrder=@ViewData["CurrentSort"]" class="btn btn-light">Closed</a>
         </div>
         <div class="input-group w-25">
             <input type="text" class="form-control" placeholder="Search issues...">
@@ -27,37 +27,39 @@
             </div>
         </div>
     </div>
-    <table class="table table-hover table-striped">
-        <thead>
-            <tr>
-                <th>Issue Id</th>
-                <th>Category</th>
-                <th>Title</th>
-                <th>Author</th>
-                <th>DateTime</th>
-                <th>Last Update</th>
-                <th>Comments</th>
-                <th>Assignee</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var issue in Model)
-            {
-                <tr class="clickable-row" data-href="/Home/Issue/@issue.IssueId">
-                    <td>@issue.IssueId</td>
-                    <td>@issue.Category</td>
-                    <td>@issue.Title</td>
-                    <td>@issue.Author</td>
-                    <td>@issue.Date</td>
-                    <td>@issue.LastUpdateDate</td>
-                    <td>@issue.Comments.Count</td>
-                    <td>@issue.Assignee</td>
-                    <td><span class="badge badge-warning">@issue.Status</span></td>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th><a href="?sortOrder=@ViewData["IdSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Issue Id</a></th>
+                    <th><a href="?sortOrder=@ViewData["CategorySortParm"]&filterStatus=@ViewData["CurrentFilter"]">Category</a></th>
+                    <th><a href="?sortOrder=@ViewData["TitleSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Title</a></th>
+                    <th><a href="?sortOrder=@ViewData["AuthorSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Author</a></th>
+                    <th><a href="?sortOrder=@ViewData["DateTimeSortParm"]&filterStatus=@ViewData["CurrentFilter"]">DateTime</a></th>
+                    <th><a href="?sortOrder=@ViewData["LastUpdateSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Last Update</a></th>
+                    <th><a href="?sortOrder=@ViewData["CommentsSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Comments</a></th>
+                    <th><a href="?sortOrder=@ViewData["AssigneeSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Assignee</a></th>
+                    <th><a href="?sortOrder=@ViewData["StatusSortParm"]&filterStatus=@ViewData["CurrentFilter"]">Status</a></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var issue in Model)
+                {
+                    <tr class="clickable-row" data-href="/Home/Issue/@issue.IssueId">
+                        <td>@issue.IssueId</td>
+                        <td>@issue.Category</td>
+                        <td>@issue.Title</td>
+                        <td>@issue.Author</td>
+                        <td>@issue.Date</td>
+                        <td>@issue.LastUpdateDate</td>
+                        <td>@issue.Comments.Count</td>
+                        <td>@issue.Assignee</td>
+                        <td><span class="badge badge-warning">@issue.Status</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>document.addEventListener("DOMContentLoaded", function () {

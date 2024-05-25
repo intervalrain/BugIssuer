@@ -5,6 +5,6 @@ public enum Status
 	Open,	
 	Ongoing,
     Closed,
-	Removed
+	Deleted
 }
 

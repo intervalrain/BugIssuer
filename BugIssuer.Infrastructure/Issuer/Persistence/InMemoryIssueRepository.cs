@@ -1,5 +1,6 @@
 ﻿using BugIssuer.Application.Common.Interfaces;
 using BugIssuer.Domain;
+using BugIssuer.Domain.Enums;
 
 namespace BugIssuer.Infrastructure.Issuer.Persistence;
 
@@ -47,6 +48,11 @@ public class InMemoryIssueRepository : IIssueRepository
     public async Task<List<Issue>> ListIssuesAsync(CancellationToken cancellationToken)
     {
         return await Task.Run(() => _dbContext.Select(x => x.Value).ToList());
+    }
+
+    public async Task<List<Issue>> ListIssuesByStatusAsync(Status status, CancellationToken cancellationToken)
+    {
+        return await Task.Run(() => _dbContext.Select(x => x.Value).Where(x => x.Status == status).ToList());
     }
 
     public async Task RemoveIssueAsync(Issue issue, CancellationToken cancellationToken)

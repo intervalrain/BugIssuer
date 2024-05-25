@@ -42,7 +42,7 @@ public class Issue : Entity
 	public ErrorOr<Success> Remove()
 	{
 
-        if (Status == Status.Removed)
+        if (Status == Status.Deleted)
         {
             return Error.Conflict(description: "The issue has already been deleted.");
         }
@@ -56,7 +56,7 @@ public class Issue : Entity
 		{
 			return Error.Forbidden(description: "The issue cannot be deleted because there are some comments.");
 		}
-		Status = Status.Removed;
+		Status = Status.Deleted;
 
 		_domainEvents.Add(new IssueRemovedEvent(IssueId));
 
@@ -65,7 +65,7 @@ public class Issue : Entity
 
     public ErrorOr<Success> Update(string title, string description, string category)
     {
-        if (Status == Status.Removed)
+        if (Status == Status.Deleted)
         {
             return Error.Conflict(description: "The issue has already been deleted.");
         }

@@ -33,9 +33,22 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Issues()
+    public IActionResult Issues(string sortOrder, string filterStatus)
     {
-        var query = new ListIssuesQuery();
+        var query = new ListIssuesQuery(sortOrder, filterStatus);
+
+        ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
+        ViewData["CategorySortParm"] = sortOrder == "Category" ? "category_desc" : "Category";
+        ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
+        ViewData["AuthorSortParm"] = sortOrder == "Author" ? "author_desc" : "Author";
+        ViewData["DateTimeSortParm"] = sortOrder == "DateTime" ? "datetime_desc" : "DateTime";
+        ViewData["LastUpdateSortParm"] = sortOrder == "LastUpdate" ? "lastupdate_desc" : "LastUpdate";
+        ViewData["CommentsSortParm"] = sortOrder == "Comments" ? "comments_desc" : "Comments";
+        ViewData["AssigneeSortParm"] = sortOrder == "Assignee" ? "assignee_desc" : "Assignee";
+        ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
+
+        ViewData["CurrentFilter"] = filterStatus;
+        ViewData["CurrentSort"] = sortOrder;
 
         var result = _sender.Send(query).GetAwaiter().GetResult();
 
