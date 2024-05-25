@@ -1,0 +1,39 @@
+﻿@using BugIssuer.Domain;
+@model Issue
+
+@{
+    ViewData["Title"] = "Issue";
+}
+
+<div class="container">
+    <h2>Issue Description</h2>
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3>@Model.Title</h3>
+            <div class="d-flex justify-content-between">
+                <div>
+                    <span class="badge badge-secondary">@Model.Category</span>
+                    <span class="badge badge-info">@Model.Status</span>
+                </div>
+                <div class="text-muted">
+                    <div>DateTime: @Model.DateTime</div>
+                    <div>Last Update: @Model.LastUpdate</div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <p><strong>Author:</strong> @Model.Author</p>
+            <p><strong>Assignee:</strong> @Model.Assignee</p>
+            <p><strong>Description:</strong> @Model.Description</p>
+            <p>
+                <strong>Comments:</strong>
+                @foreach (var comment in Model.Comments)
+                {
+                    <ul>
+                        <li>@comment.Content</li>
+                    </ul>
+                }
+            </p>
+        </div>
+    </div>
+</div>

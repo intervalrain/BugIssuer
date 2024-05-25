@@ -2,9 +2,9 @@
 
 public enum Status
 {
-	Waiting,	
+	Open,	
 	Ongoing,
-    Done,
+    Closed,
 	Removed
 }
 

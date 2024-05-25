@@ -13,7 +13,7 @@ namespace BugIssuer.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services)//, IConfiguration configuration)
     {
         services
             .AddHttpContextAccessor()
@@ -32,9 +32,10 @@ public static class DependencyInjection
 
     private static IServiceCollection AddPersistence(this IServiceCollection services)
     {
-        services.AddDbContext<AppDbContext>(options => options.UseNpgsql(""));
+        //services.AddDbContext<AppDbContext>(options => options.UseNpgsql(""));
 
-        services.AddScoped<IIssueRepository, IssueRepository>();
+        var repo = new InMemoryIssueRepository();
+        services.AddSingleton<IIssueRepository>(repo);
 
         return services;
     }

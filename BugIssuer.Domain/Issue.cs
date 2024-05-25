@@ -8,44 +8,49 @@ namespace BugIssuer.Domain;
 
 public class Issue : Entity
 {
-	public int Id { get; }
+	public int IssueId { get; }
 	public string Title { get; set; }
 	public string Description { get; set; }
 	public string Category { get; set; }
 	public string AuthorId { get; }
 	public string Author { get; }
-	public DateTime EventTime { get; }
-	public DateTime LastUpdateTime { get; set; } 
+	public DateTime DateTime { get; }
+	public DateTime LastUpdate { get; set; } 
 	public string Assignee { get; set; }
 	public Status Status { get; set; }
 	public List<Comment> Comments { get; set; }
 
-	public Issue(int id, string title, string category, string authorId, string author, DateTime dateTime)
-		: base(id)
+	public DateOnly Date => DateOnly.FromDateTime(DateTime);
+    public DateOnly LastUpdateDate => DateOnly.FromDateTime(LastUpdate);
+
+    public Issue(int id, string title, string category, string authorId, string author, string description, DateTime dateTime)
+		: base(Guid.NewGuid())
 	{
-		Id = id;
+		IssueId = id;
 		Title = title;
 		Category = category;
 		AuthorId = authorId;
 		Author = author;
-		EventTime = dateTime;
-		LastUpdateTime = dateTime;
+		Description = description;
+		DateTime = dateTime;
+		LastUpdate = dateTime;
 		Assignee = string.Empty;
-		Status = Status.Waiting;
+		Status = Status.Open;
 		Comments = new List<Comment>();
 	}
 
 	public ErrorOr<Success> Remove()
 	{
-		if (Status != Status.Waiting)
+
+        if (Status == Status.Removed)
+        {
+            return Error.Conflict(description: "The issue has already been deleted.");
+        }
+
+		if (Status != Status.Open)
 		{
 			return Error.Forbidden(description: "The issue has already been accepted.");
 		}
-
-		if (Status == Status.Removed)
-		{
-            return Error.Conflict(description: "The issue has already been deleted.");
-        }
 
 		if (Comments.Any())
 		{
@@ -53,13 +58,29 @@ public class Issue : Entity
 		}
 		Status = Status.Removed;
 
-		_domainEvents.Add(new IssueRemovedEvent(Id));
+		_domainEvents.Add(new IssueRemovedEvent(IssueId));
 
 		return Result.Success;
 	}
 
     public ErrorOr<Success> Update(string title, string description, string category)
     {
-        throw new NotImplementedException();
+        if (Status == Status.Removed)
+        {
+            return Error.Conflict(description: "The issue has already been deleted.");
+        }
+
+        if (Status != Status.Open)
+        {
+            return Error.Forbidden(description: "The issue has already been accepted.");
+        }
+
+		Title = title;
+		Description = description;
+		Category = category;
+
+        _domainEvents.Add(new IssueUpdatedEvent(IssueId, title, description, category));
+
+        return Result.Success;
     }
 }

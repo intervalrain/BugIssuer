@@ -1,0 +1,70 @@
+﻿@using BugIssuer.Domain;
+@model IEnumerable<Issue>
+@{
+    ViewData["Title"] = "Issues";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Issues</h2>
+        <div>
+            <button class="btn btn-outline-primary">Import</button>
+            <button class="btn btn-outline-primary">Export</button>
+            <button class="btn btn-success">New Issue</button>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <button class="btn btn-light">All</button>
+            <button class="btn btn-light">Open</button>
+            <button class="btn btn-light">Ongoing</button>
+            <button class="btn btn-light">Closed</button>
+        </div>
+        <div class="input-group w-25">
+            <input type="text" class="form-control" placeholder="Search issues...">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button">Search</button>
+            </div>
+        </div>
+    </div>
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>Issue Id</th>
+                <th>Category</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>DateTime</th>
+                <th>Last Update</th>
+                <th>Comments</th>
+                <th>Assignee</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var issue in Model)
+            {
+                <tr class="clickable-row" data-href="/Home/Issue/@issue.IssueId">
+                    <td>@issue.IssueId</td>
+                    <td>@issue.Category</td>
+                    <td>@issue.Title</td>
+                    <td>@issue.Author</td>
+                    <td>@issue.Date</td>
+                    <td>@issue.LastUpdateDate</td>
+                    <td>@issue.Comments.Count</td>
+                    <td>@issue.Assignee</td>
+                    <td><span class="badge badge-warning">@issue.Status</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>document.addEventListener("DOMContentLoaded", function () {
+    var rows = document.querySelectorAll(".clickable-row");
+    rows.forEach(function (row) {
+        row.addEventListener("click", function () {
+            window.location = row.getAttribute("data-href");
+        });
+    });
+});</script>

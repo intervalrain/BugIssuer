@@ -8,16 +8,16 @@ using MediatR;
 
 namespace BugIssuer.Application.Issuer.Queries.ListIssues;
 
-public class ListIssueQueryHandler : IRequestHandler<ListIssueQuery, ErrorOr<List<Issue>>>
+public class ListIssuesQueryHandler : IRequestHandler<ListIssuesQuery, ErrorOr<List<Issue>>>
 {
     private readonly IIssueRepository _issueRepository;
 
-    public ListIssueQueryHandler(IIssueRepository issueRepository)
+    public ListIssuesQueryHandler(IIssueRepository issueRepository)
     {
         _issueRepository = issueRepository;
     }
 
-    public async Task<ErrorOr<List<Issue>>> Handle(ListIssueQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<List<Issue>>> Handle(ListIssuesQuery request, CancellationToken cancellationToken)
     {
         var issues = await _issueRepository.ListIssuesAsync(cancellationToken);
 

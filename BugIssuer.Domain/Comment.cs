@@ -1,12 +1,30 @@
-﻿namespace BugIssuer.Domain;
+﻿using BugIssuer.Domain.Common;
 
-public class Comment
+namespace BugIssuer.Domain;
+
+public class Comment : Entity
 {
-	public int IssueId { get; set; }
-	public int Id { get; set; }
-	public string Content { get; set; }
-    public string AuthorId { get; set; }
-    public string Author { get; set; }
-	public DateTime EventTime { get; set; }
-}
+    public int CommentId { get; }
+    public int IssueId { get; }
+    public string Content { get; set; }
+    public string AuthorId { get; }
+    public string Author { get; }
+    public DateTime DateTime { get; }
+    public DateTime LastUpdate { get; }
 
+    public DateOnly Date => DateOnly.FromDateTime(DateTime);
+    public DateOnly LastUpdateDate => DateOnly.FromDateTime(LastUpdate);
+
+
+    public Comment(int id, int issueId, string authorId, string author, string content, DateTime dateTime)
+        : base(Guid.NewGuid())
+    {
+        CommentId = id;
+        IssueId = issueId;
+        AuthorId = authorId;
+        Author = author;
+        Content = content;
+        DateTime = dateTime;
+        LastUpdate = dateTime;
+    }
+}

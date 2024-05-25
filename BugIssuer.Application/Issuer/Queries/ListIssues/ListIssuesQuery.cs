@@ -6,4 +6,4 @@ using MediatR;
 
 namespace BugIssuer.Application.Issuer.Queries.ListIssues;
 
-public record ListIssueQuery() : IRequest<ErrorOr<List<Issue>>>;
+public record ListIssuesQuery() : IRequest<ErrorOr<List<Issue>>>;
