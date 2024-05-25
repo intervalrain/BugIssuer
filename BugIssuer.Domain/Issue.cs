@@ -14,6 +14,7 @@ public class Issue : Entity
 	public string Category { get; private set; }
 	public string AuthorId { get; }
 	public string Author { get; }
+	public int Urgency { get; private set; }
 	public DateTime DateTime { get; }
 	public DateTime LastUpdate { get; private set; } 
 	public string Assignee { get; private set; }
@@ -26,7 +27,7 @@ public class Issue : Entity
 	public TimeOnly Time => TimeOnly.FromDateTime(DateTime);
 	public TimeOnly LastUpdateTime => TimeOnly.FromDateTime(LastUpdate); 
 
-    internal Issue(int id, string title, string category, string authorId, string author, string description, DateTime dateTime)
+    internal Issue(int id, string title, string category, string authorId, string author, string description, int urgency, DateTime dateTime)
 		: base(Guid.NewGuid())
 	{
 		IssueId = id;
@@ -35,6 +36,7 @@ public class Issue : Entity
 		AuthorId = authorId;
 		Author = author;
 		Description = description;
+		Urgency = urgency;
 		DateTime = dateTime;
 		LastUpdate = dateTime;
 		Assignee = string.Empty;
@@ -44,9 +46,9 @@ public class Issue : Entity
 
 	private static int _issueCount = 0; 
 
-	public static Issue Create(string title, string category, string authorId, string author, string description)
+	public static Issue Create(string title, string category, string authorId, string author, string description, int urgency = 1)
 	{
-		return new Issue(++_issueCount, title, category, authorId, author, description, DateTime.UtcNow);
+		return new Issue(++_issueCount, title, category, authorId, author, description, urgency, DateTime.UtcNow);
 	}
 
 	public ErrorOr<Success> Remove()
@@ -73,7 +75,7 @@ public class Issue : Entity
 		return Result.Success;
 	}
 
-    public ErrorOr<Success> Update(string title, string description, string category)
+    public ErrorOr<Success> Update(string title, string description, string category, int urgency, DateTime dateTime)
     {
         if (Status == Status.Deleted)
         {
@@ -88,20 +90,23 @@ public class Issue : Entity
 		Title = title;
 		Description = description;
 		Category = category;
-		LastUpdate = DateTime.UtcNow;
+		Urgency = urgency;
+		LastUpdate = dateTime;
 
-        _domainEvents.Add(new IssueUpdatedEvent(IssueId, title, description, category, LastUpdate));
+        _domainEvents.Add(new IssueUpdatedEvent(IssueId, title, description, category, urgency, dateTime));
 
         return Result.Success;
     }
 
-	public ErrorOr<Success> AddComment(string authorId, string author, string content)
+	public ErrorOr<Success> AddComment(string authorId, string author, string content, DateTime dateTime)
 	{
 		if (Status == Status.Deleted)
 		{
 			return Error.NotFound(description: "The issue has already been deleted.");
 		}
-		Comments.Add(new Comment(Comments.Count + 1, IssueId, authorId, author, content, DateTime.UtcNow));
+		var now = dateTime;
+		Comments.Add(new Comment(Comments.Count + 1, IssueId, authorId, author, content, now));
+		LastUpdate = dateTime;
 
 		return Result.Success;
 	}

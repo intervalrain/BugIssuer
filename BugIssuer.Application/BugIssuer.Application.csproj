@@ -16,6 +16,8 @@
     <None Remove="Common\Behaviors\" />
     <None Remove="Issuer\Queries\GetIssue\" />
     <None Remove="Issuer\Queries\ListIssues\" />
+    <None Remove="Issuer\Queries\SearchIssues\" />
+    <None Remove="Issuer\Commands\NewComment\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Issuer\" />
@@ -29,6 +31,8 @@
     <Folder Include="Common\Behaviors\" />
     <Folder Include="Issuer\Queries\GetIssue\" />
     <Folder Include="Issuer\Queries\ListIssues\" />
+    <Folder Include="Issuer\Queries\SearchIssues\" />
+    <Folder Include="Issuer\Commands\NewComment\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="2.0.1" />

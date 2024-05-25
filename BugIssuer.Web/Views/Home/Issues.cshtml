@@ -1,5 +1,5 @@
 ﻿@using BugIssuer.Domain;
-@using BugIssuer.Domain.Enums;
+@using BugIssuer.Web.Extensions;
 @model IEnumerable<Issue>
 @{
     ViewData["Title"] = "Issues";
@@ -15,8 +15,6 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Issues</h2>
         <div>
-            <button class="btn btn-outline-primary">Import</button>
-            <button class="btn btn-outline-primary">Export</button>
             <a href="/Home/NewIssue" class="btn btn-success">New Issue</a>
         </div>
     </div>
@@ -26,12 +24,6 @@
             <a href="/Home/Issues?filterStatus=Open&sortOrder=@currentSort" class="btn @btnOpen">Open</a>
             <a href="/Home/Issues?filterStatus=Ongoing&sortOrder=@currentSort" class="btn @btnOngoing">Ongoing</a>
             <a href="/Home/Issues?filterStatus=Closed&sortOrder=@currentSort" class="btn @btnClosed">Closed</a>
-        </div>
-        <div class="input-group w-25">
-            <input type="text" class="form-control" placeholder="Search issues...">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button">Search</button>
-            </div>
         </div>
     </div>
     <div class="table-responsive">
@@ -46,34 +38,40 @@
                     <th><a href="?sortOrder=@ViewData["LastUpdateSortParm"]&filterStatus=@currentFilter">Last Update</a></th>
                     <th><a href="?sortOrder=@ViewData["CommentsSortParm"]&filterStatus=@currentFilter">Comments</a></th>
                     <th><a href="?sortOrder=@ViewData["AssigneeSortParm"]&filterStatus=@currentFilter">Assignee</a></th>
+                    <th><a href="?sortOrder=@ViewData["UrgencySortParm"]&filterStatus=@currentFilter">Urgency</a></th>
                     <th><a href="?sortOrder=@ViewData["StatusSortParm"]&filterStatus=@currentFilter">Status</a></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var issue in Model)
-                {
-                    <tr class="clickable-row" data-href="/Home/Issue/@issue.IssueId">
-                        <td>@issue.IssueId</td>
-                        <td>@issue.Category</td>
-                        <td>@issue.Title</td>
-                        <td>@issue.Author</td>
-                        <td>@issue.Date</td>
-                        <td>@issue.LastUpdateDate</td>
-                        <td>@issue.Comments.Count</td>
-                        <td>@issue.Assignee</td>
-                        <td><span class="badge @issue.Status.Badge()">@issue.Status</span></td>
-                    </tr>
-                }
+                <div id="issue-list-container">
+                    @foreach (var issue in Model)
+                    {
+                        <tr class="clickable-row" data-href="/Home/Issue/@issue.IssueId">
+                            <td>@issue.IssueId</td>
+                            <td>@issue.Category</td>
+                            <td>@issue.Title</td>
+                            <td>@issue.Author</td>
+                            <td>@issue.Date</td>
+                            <td>@issue.LastUpdateDate</td>
+                            <td>@issue.Comments.Count</td>
+                            <td>@issue.Assignee</td>
+                            <td><span class="@Badge.UrgencyToBadge(issue.Urgency)">@issue.Urgency</span></td>
+                            <td><span class="@Badge.StatusToBadge(issue.Status)">@issue.Status</span></td>
+                        </tr>
+                    }
+                </div>
             </tbody>
         </table>
     </div>
 </div>
 
-<script>document.addEventListener("DOMContentLoaded", function () {
-    var rows = document.querySelectorAll(".clickable-row");
-    rows.forEach(function (row) {
-        row.addEventListener("click", function () {
-            window.location = row.getAttribute("data-href");
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var rows = document.querySelectorAll(".clickable-row");
+        rows.forEach(function (row) {
+            row.addEventListener("click", function () {
+                window.location = row.getAttribute("data-href");
+            });
         });
     });
-});</script>
+</script>

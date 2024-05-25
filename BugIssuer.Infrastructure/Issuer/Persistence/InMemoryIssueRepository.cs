@@ -14,11 +14,11 @@ public class InMemoryIssueRepository : IIssueRepository
     {
         var issues = new List<Issue>
         {
-            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test1"),
-            Issue.Create("test2", "Query UI", "00012415", "Yao", "test2"),
-            Issue.Create("test3", "Wafer Map", "00012415", "Yao", "test3"),
-            Issue.Create("test4", "Contour Plot", "00012415", "Yao", "test4"),
-            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test5")
+            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test1", 1),
+            Issue.Create("test2", "Query UI", "00012415", "Yao", "test2", 2),
+            Issue.Create("test3", "Wafer Map", "00012415", "Yao", "test3", 3),
+            Issue.Create("test4", "Contour Plot", "00012415", "Yao", "test4", 4),
+            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test5", 5)
         };
         await AddIssueAsync(issues[0], CancellationToken.None);
         await AddIssueAsync(issues[1], CancellationToken.None);
@@ -26,8 +26,8 @@ public class InMemoryIssueRepository : IIssueRepository
         await AddIssueAsync(issues[3], CancellationToken.None);
         await AddIssueAsync(issues[4], CancellationToken.None);
 
-        issues[0].AddComment("00053997", "Rain Hu", "Hello");
-        issues[0].AddComment("00053997", "Rain Hu", "Yao sir, Can you describe the issue in detail?");
+        issues[0].AddComment("00053997", "Rain Hu", "Hello", DateTime.Now);
+        issues[0].AddComment("00053997", "Rain Hu", "Yao sir, Can you describe the issue in detail?", DateTime.Now);
 
         issues[1].Close();
         issues[2].Assign("Kun");

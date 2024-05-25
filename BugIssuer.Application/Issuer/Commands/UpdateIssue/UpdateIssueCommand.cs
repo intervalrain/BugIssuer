@@ -4,4 +4,4 @@ using MediatR;
 
 namespace BugIssuer.Application.Issuer.Commands.UpdateIssue;
 
-public record UpdateIssueCommand(int IssueId, string AuthorId, string Title, string Description, string Category) : IRequest<ErrorOr<Success>>;
+public record UpdateIssueCommand(int IssueId, string AuthorId, string Title, string Description, string Category, int Urgency) : IRequest<ErrorOr<Success>>;

@@ -1,5 +1,5 @@
 ﻿@using BugIssuer.Domain;
-@using BugIssuer.Domain.Enums;
+@using BugIssuer.Web.Extensions; 
 @using Markdig;
 
 @model Issue
@@ -23,7 +23,8 @@
             <div class="d-flex justify-content-between">
                 <div>
                     <span class="badge badge-secondary">@Model.Category</span>
-                    <span class="badge @Model.Status.Badge()">@Model.Status</span>
+                    <span class="@Badge.UrgencyToBadge(Model.Urgency)">@Model.Urgency</span>
+                    <span class="@Badge.StatusToBadge(Model.Status)">@Model.Status</span>
                 </div>
                 <div class="text-muted">
                     <div>@Model.Author</div>
@@ -39,14 +40,12 @@
         {
             <div class="card-header">
                 <div class="d-flex justify-content-between">
-                    <span class="comment-id">
-                        <h5># @comment.CommentId</h5>
-                    </span>
-                    <span class="text-muted">
+                    <h5># @comment.CommentId</h5>    
+                    <div class="text-muted">
                         <div>@comment.Author</div>
                         <div>@comment.LastUpdateDate</div>
                         <div>@comment.LastUpdateTime</div>
-                    </span>
+                    </div>
                 </div>
             </div>
             <div class="card-body">
@@ -55,15 +54,18 @@
         }
         <div class="card-footer">
             <textarea id="new-comment" placeholder="Enter Comment"></textarea>
-            <button class="btn btn-success">Post</button>
+            <button class="btn btn-success" id="comment-button">Post</button>
         </div>
     </div>
 </div>
 
+<input type="hidden" id="issue-id" value="@Model.IssueId" />
+
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
-<script>var simplemde = new SimpleMDE({
+<script>
+    var simplemde = new SimpleMDE({
         element: document.getElementById("new-comment"),
         spellChecker: false,
         status: false,
@@ -115,4 +117,39 @@
                 console.error('Error:', error);
                 alert("Failed to upload image");
             });
-    }</script>
+        }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("comment-button").addEventListener("click", function () {
+            var issueId = document.getElementById("issue-id").value;
+            var content = simplemde.value();
+
+            if (content.trim() === "") {
+                alert("Comment cannot be empty");
+                return;
+            }
+
+            fetch('/Home/PostComment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    //'RequestVerification': document.querySelector('input[name=__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ issueId: issueId, content: content })
+            })
+            .then(html => {
+                document.getElementById("new-comment").value = "";
+                var commentListContainer = document.getElementById("comment-list-container");
+                if (commentListContainer) {
+                    commentListContainer.innerHTML = html;
+                } else {
+                    console.error('Element with id "comment-list-container" not found');
+                }
+            })
+            .catch(error => {
+                console.error('Error posting comment', error);
+            })
+        })
+    });
+
+    </script>

@@ -1,0 +1,20 @@
+﻿@using BugIssuer.Domain;
+@using Markdig;
+@model IEnumerable<Comment>
+
+@foreach (var comment in Model)
+{
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <h5># @comment.CommentId</h5>
+            <div class="text-muted">
+                <div>@comment.Author</div>
+                <div>@comment.LastUpdateDate</div>
+                <div>@comment.LastUpdateTime</div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <p>@Html.Raw(Markdown.ToHtml(comment.Content))</p>
+    </div>
+}

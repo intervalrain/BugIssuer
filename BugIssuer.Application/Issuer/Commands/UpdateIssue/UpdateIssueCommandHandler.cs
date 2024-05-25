@@ -9,10 +9,12 @@ namespace BugIssuer.Application.Issuer.Commands.UpdateIssue
     public class UpdateIssueCommandHandler : IRequestHandler<UpdateIssueCommand, ErrorOr<Success>>
     {
         private readonly IIssueRepository _issueRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public UpdateIssueCommandHandler(IIssueRepository issueRepository)
+        public UpdateIssueCommandHandler(IIssueRepository issueRepository, IDateTimeProvider dateTimeProvider)
         {
             _issueRepository = issueRepository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<ErrorOr<Success>> Handle(UpdateIssueCommand request, CancellationToken cancellationToken)
@@ -30,7 +32,7 @@ namespace BugIssuer.Application.Issuer.Commands.UpdateIssue
                 return Error.Forbidden(description: "You are not allowed to delete this issue.");
             }
 
-            var result = issue.Update(request.Title, request.Description, request.Category);
+            var result = issue.Update(request.Title, request.Description, request.Category, request.Urgency, _dateTimeProvider.Now);
 
             if (result.IsError)
             {

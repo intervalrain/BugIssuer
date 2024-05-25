@@ -4,6 +4,8 @@ using BugIssuer.Web.Models;
 using MediatR;
 using BugIssuer.Application.Issuer.Queries.ListIssues;
 using BugIssuer.Application.Issuer.Queries.GetIssue;
+using BugIssuer.Application.Issuer.Queries.SearchIssues;
+using BugIssuer.Application.Issuer.Commands.NewComment;
 
 namespace BugIssuer.Web.Controllers;
 
@@ -52,6 +54,7 @@ public class HomeController : Controller
         ViewData["LastUpdateSortParm"] = sortOrder == "LastUpdate" ? "lastupdate_desc" : "LastUpdate";
         ViewData["CommentsSortParm"] = sortOrder == "Comments" ? "comments_desc" : "Comments";
         ViewData["AssigneeSortParm"] = sortOrder == "Assignee" ? "assignee_desc" : "Assignee";
+        ViewData["UrgencySortParm"] = sortOrder == "Urgency" ? "urgency_desc" : "Urgency";
         ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
 
         ViewData["CurrentFilter"] = filterStatus;
@@ -74,6 +77,47 @@ public class HomeController : Controller
     public IActionResult NewIssue()
     {
         return View();
+    }
+
+    [HttpPost]
+    //[ValidateAntiForgeryToken]
+    public async Task<IActionResult> PostComment([FromBody] CommentViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var command = new NewCommentCommand(
+                model.IssueId,
+                User.Identity.Name,
+                User.Identity.Name,
+                model.Content
+                );
+
+            var result = await _sender.Send(command);
+            if (result.IsError)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+            var query = new GetIssueQuery(model.IssueId);
+            var response = await _sender.Send(query);
+            return PartialView("_CommentListPartial", response.Value.Comments);
+        }
+        return BadRequest("Invalid comment data"); 
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SearchIssues(string searchText, CancellationToken token)
+    {
+        try
+        {
+            var query = new SearchIssuesQuery(searchText);
+            var issues = await _sender.Send(query, token);
+            return PartialView("_IssueListPartial", issues.Value);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while searching issues.");
+            return StatusCode(500, "Internal server error");
+        }
     }
 
     [HttpPost]
