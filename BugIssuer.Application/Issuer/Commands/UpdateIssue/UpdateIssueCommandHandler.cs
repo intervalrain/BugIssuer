@@ -20,6 +20,11 @@ namespace BugIssuer.Application.Issuer.Commands.UpdateIssue
             var authorId = request.AuthorId;
             var issue = await _issueRepository.GetIssueByIdAsync(request.IssueId, cancellationToken);
 
+            if (issue is null)
+            {
+                return Error.NotFound(description: "The issue is not found");
+            }
+
             if (issue.AuthorId != authorId)
             {
                 return Error.Forbidden(description: "You are not allowed to delete this issue.");

@@ -19,7 +19,7 @@ public class ListIssuesQueryHandler : IRequestHandler<ListIssuesQuery, ErrorOr<L
 
     public async Task<ErrorOr<List<Issue>>> Handle(ListIssuesQuery request, CancellationToken cancellationToken)
     {
-        List<Issue> issues = default;
+        List<Issue>? issues = default;
         if (request.filterStatus == "All" || string.IsNullOrEmpty(request.filterStatus))
         {
             issues = await _issueRepository.ListIssuesAsync(cancellationToken);
@@ -36,7 +36,12 @@ public class ListIssuesQueryHandler : IRequestHandler<ListIssuesQuery, ErrorOr<L
             };
             issues = await _issueRepository.ListIssuesByStatusAsync(status, cancellationToken);
         }
-        
+
+        if (issues is null)
+        {
+            return Error.Unexpected(description: "There are some unexpected errors happened. Please contact admin.");
+        }
+
         Sort(ref issues, request.SortOrder);
 
         return issues.Where(issue => issue.Status != Status.Deleted).ToList();
