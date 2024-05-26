@@ -9,7 +9,14 @@
     var btnOngoing = currentFilter == "Ongoing" ? "btn-primary" : "btn-light";
     var btnClosed = currentFilter == "Closed" ? "btn-primary" : "btn-light";
 }
-
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <a href="?filterStatus=All&sortOrder=@currentSort" class="btn @btnAll">All</a>
+        <a href="?filterStatus=Open&sortOrder=@currentSort" class="btn @btnOpen">Open</a>
+        <a href="?filterStatus=Ongoing&sortOrder=@currentSort" class="btn @btnOngoing">Ongoing</a>
+        <a href="?filterStatus=Closed&sortOrder=@currentSort" class="btn @btnClosed">Closed</a>
+    </div>
+</div>
 <div class="table-responsive">
     <table class="table table-hover table-striped">
         <thead>
@@ -43,16 +50,16 @@
                     <td><span class="@Badge.StatusToBadge(issue.Status)">@issue.Status</span></td>
                 </tr>
             }
-            </div>
-        </tbody>
+    </div>
+    </tbody>
     </table>
-</div>
+    </div>
 
-<script>document.addEventListener("DOMContentLoaded", function () {
-    var rows = document.querySelectorAll(".clickable-row");
-    rows.forEach(function (row) {
-        row.addEventListener("click", function () {
-            window.location = row.getAttribute("data-href");
-        });
-    });
-});</script>
+    <script>document.addEventListener("DOMContentLoaded", function () {
+            var rows = document.querySelectorAll(".clickable-row");
+            rows.forEach(function (row) {
+                row.addEventListener("click", function () {
+                    window.location = row.getAttribute("data-href");
+                });
+            });
+        });</script>

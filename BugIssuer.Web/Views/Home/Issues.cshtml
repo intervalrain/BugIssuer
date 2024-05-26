@@ -17,14 +17,6 @@
             <a href="/Home/NewIssue" class="btn btn-success">New Issue</a>
         </div>
     </div>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <a href="/Home/Issues?filterStatus=All&sortOrder=@currentSort" class="btn @btnAll">All</a>
-            <a href="/Home/Issues?filterStatus=Open&sortOrder=@currentSort" class="btn @btnOpen">Open</a>
-            <a href="/Home/Issues?filterStatus=Ongoing&sortOrder=@currentSort" class="btn @btnOngoing">Ongoing</a>
-            <a href="/Home/Issues?filterStatus=Closed&sortOrder=@currentSort" class="btn @btnClosed">Closed</a>
-        </div>
-    </div>
     @Html.Partial("_IssuesPartial", Model)
 </div>
 
