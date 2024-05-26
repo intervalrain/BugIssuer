@@ -1,8 +1,7 @@
 ﻿namespace BugIssuer.Web.Models;
 
-public class CommentViewModel
+public class DeleteIssueRequest
 {
     public int IssueId { get; set; }
-    public string Content { get; set; }
 }
 

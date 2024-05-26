@@ -1,25 +1,24 @@
-﻿@using BugIssuer.Web.Models;
-@model NewIssueViewModel;
+﻿@model EditIssueViewModel;
 @{
-    ViewData["Title"] = "New Issue";
+    ViewData["Title"] = "Edit Issue";
 }
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>New Issue</h2>
+        <h2>Edit Issue</h2>
     </div>
 
-    <form asp-action="NewIssue" method="post">
+    <form asp-action="EditIssue" method="post">
         <div class="card mb-3">
             <div class="card-header">
                 <div class="form-group">
                     <label for="Title">Title</label>
-                    <input type="text" id="Title" class="form-control" name="Title" placeholder="Enter title" required>
+                    <input type="text" id="Title" class="form-control" name="Title" placeholder="Enter title" asp-for="Title" required>
                 </div>
 
                 <div class="form-group">
                     <label for="Category">Category</label>
-                    <input type="text" id="Category" class="form-control" name="Category" placeholder="Enter category" required>
+                    <input type="text" id="Category" class="form-control" name="Category" placeholder="Enter category" asp-for="Category" required>
                 </div>
 
                 <div class="form-group">
@@ -28,15 +27,18 @@
                         @for (int i = 1; i <= 5; i++)
                         {
                             <label class="btn btn-outline-primary">
-                                <input type="radio" name="Urgency" value="@i" autocomplete="off" required @(i == 1 ? "checked" : "")> @i
+                                <input type="radio" name="Urgency" value="@i" autocomplete="off" required @(i == Model.Urgency ? "checked" : "")> @i
                             </label>
                         }
                     </div>
                 </div>
+                <div class="form-group">
+                    <input type="hidden" id="IssueId" class="form-control" name="IssueId" asp-for="IssueId" required/>
+                </div>
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <textarea id="Description" name="Description" class="form-control" placeholder="Enter description"></textarea>
+                    <textarea id="Description" name="Description" class="form-control" placeholder="Enter description" asp-for="Description"></textarea>
                 </div>
                 <button type="submit" class="btn btn-success">Post</button>
             </div>

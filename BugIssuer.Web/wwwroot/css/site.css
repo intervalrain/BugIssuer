@@ -63,3 +63,9 @@ h2 {
 .table-responsive {
     overflow-x: auto;
 }
+
+.badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}

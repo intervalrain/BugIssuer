@@ -6,6 +6,9 @@ using BugIssuer.Application.Issuer.Queries.ListIssues;
 using BugIssuer.Application.Issuer.Queries.GetIssue;
 using BugIssuer.Application.Issuer.Queries.SearchIssues;
 using BugIssuer.Application.Issuer.Commands.NewComment;
+using BugIssuer.Application.Issuer.Commands.CreateIssue;
+using BugIssuer.Application.Issuer.Commands.UpdateIssue;
+using BugIssuer.Application.Issuer.Commands.RemoveIssue;
 
 namespace BugIssuer.Web.Controllers;
 
@@ -74,32 +77,115 @@ public class HomeController : Controller
         return View(issue.Value);
     }
 
+    [HttpGet]
     public IActionResult NewIssue()
     {
         return View();
     }
 
     [HttpPost]
-    //[ValidateAntiForgeryToken]
-    public async Task<IActionResult> PostComment([FromBody] CommentViewModel model)
+    public IActionResult NewIssue(NewIssueViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var command = new CreateIssueCommand(model.Title, model.Description, model.Category, model.Urgency, "00123", "Yao");
+
+            var issue = _sender.Send(command).GetAwaiter().GetResult();
+
+            return RedirectToAction(nameof(Issues));
+        }
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditIssue(int id)
+    {
+        var query = new GetIssueQuery(id);
+
+        var result  = await _sender.Send(query);
+        
+        if (result.IsError)
+        {
+            return Problem();
+        }
+
+        var issue = result.Value;
+        var model = new EditIssueViewModel
+        {
+            IssueId = issue.IssueId,
+            Title = issue.Title,
+            Category = issue.Category,
+            Urgency = issue.Urgency,
+            Description = issue.Description
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditIssue(EditIssueViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var query = new GetIssueQuery(model.IssueId);
+            var result = await _sender.Send(query);
+            if (result.IsError)
+            {
+                return Problem();
+            }
+            var issue = result.Value;
+
+            var command = new UpdateIssueCommand(
+                issue.IssueId,
+                issue.AuthorId,
+                model.Title,
+                model.Description,
+                model.Category,
+                model.Urgency
+                );
+            var response = await _sender.Send(command);
+            return RedirectToAction(nameof(Issue), new { id = model.IssueId });
+        }
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteIssue([FromBody] DeleteIssueRequest request)
+    {
+        try
+        {
+            var command = new RemoveIssueCommand("00012415", request.IssueId);
+
+            var result = await _sender.Send(command);
+
+            if (result.IsError)
+            {
+                return Problem(detail: result.FirstError.Description);
+            }
+            return RedirectToAction(nameof(Issues));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while deleting issues.");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost]
+    public IActionResult NewComment(NewCommentViewModel model)
     {
         if (ModelState.IsValid)
         {
             var command = new NewCommentCommand(
                 model.IssueId,
-                User.Identity.Name,
-                User.Identity.Name,
-                model.Content
+                "00053997",
+                "Rain Hu",
+                model.CommentContent
                 );
 
-            var result = await _sender.Send(command);
-            if (result.IsError)
-            {
-                return StatusCode(500, "Internal server error");
-            }
-            var query = new GetIssueQuery(model.IssueId);
-            var response = await _sender.Send(query);
-            return PartialView("_CommentListPartial", response.Value.Comments);
+            var comment = _sender.Send(command).GetAwaiter().GetResult();
+
+            return RedirectToAction(nameof(Issue), new { id = model.IssueId });
         }
         return BadRequest("Invalid comment data"); 
     }

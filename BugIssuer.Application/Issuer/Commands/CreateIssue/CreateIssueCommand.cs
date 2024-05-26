@@ -10,5 +10,6 @@ public record CreateIssueCommand(
 	string Title,
 	string Description,
 	string Category,
+	int Urgency,
 	string AuthorId,
 	string Author) : IRequest<ErrorOr<Issue>>;
