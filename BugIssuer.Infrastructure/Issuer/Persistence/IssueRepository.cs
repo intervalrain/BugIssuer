@@ -1,4 +1,6 @@
-﻿using BugIssuer.Application.Common.Interfaces;
+﻿using System.Net.NetworkInformation;
+
+using BugIssuer.Application.Common.Interfaces;
 using BugIssuer.Domain;
 using BugIssuer.Domain.Enums;
 using BugIssuer.Infrastructure.Common.Persistance;
@@ -38,6 +40,14 @@ public class IssueRepository : IIssueRepository
     public async Task<List<Issue>> ListIssuesAsync(CancellationToken cancellationToken)
     {
         return await _dbContext.Issues
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Issue>> ListIssuesByAuthorIdAsync(string authorId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Issues
+            .Where(x => x.AuthorId == authorId)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }

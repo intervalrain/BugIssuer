@@ -26,7 +26,8 @@ public class CreateIssueCommandHandler : IRequestHandler<CreateIssueCommand, Err
             request.AuthorId,
             request.Author,
             request.Description,
-            request.Urgency);
+            request.Urgency,
+            request.DateTime);
 
         await _issueRepository.AddIssueAsync(issue, cancellationToken);
 

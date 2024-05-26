@@ -1,13 +1,10 @@
 ﻿using BugIssuer.Application.Common.Interfaces;
-using BugIssuer.Infrastructure.Common.Persistance;
 using BugIssuer.Infrastructure.Common.Services;
 using BugIssuer.Infrastructure.Issuer.Persistence;
+using BugIssuer.Infrastructure.Security;
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Microsoft.Extensions.Options;
 
 namespace BugIssuer.Infrastructure;
 
@@ -18,6 +15,7 @@ public static class DependencyInjection
         services
             .AddHttpContextAccessor()
             .AddServices()
+            .AddAuthorization()
             .AddPersistence();
             //.AddBackgroundServices(configuration)
 
@@ -30,12 +28,17 @@ public static class DependencyInjection
         return services;
     }
 
+    private static IServiceCollection AddAuthorization(this IServiceCollection services)
+    {
+        services.AddSingleton<ICurrentUserProvider, CurrentUserProvider>();
+        return services;
+    }
+
     private static IServiceCollection AddPersistence(this IServiceCollection services)
     {
         //services.AddDbContext<AppDbContext>(options => options.UseNpgsql(""));
 
-        var repo = new InMemoryIssueRepository();
-        services.AddSingleton<IIssueRepository>(repo);
+        services.AddSingleton<IIssueRepository, InMemoryIssueRepository>();
 
         return services;
     }

@@ -21,7 +21,7 @@ public class GetIssueQueryHandler : IRequestHandler<GetIssueQuery, ErrorOr<Issue
     {
         var issue = await _issueRepository.GetIssueByIdAsync(request.IssueId, cancellationToken);
 
-        if (issue is null || issue.Status == Status.Deleted)
+        if (issue is null || (issue.Status == Status.Deleted && request.AuthorId != issue.Author))
         {
             return Error.NotFound(description: "Issue not found.");
         }

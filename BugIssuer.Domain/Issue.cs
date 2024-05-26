@@ -46,9 +46,9 @@ public class Issue : Entity
 
 	private static int _issueCount = 0; 
 
-	public static Issue Create(string title, string category, string authorId, string author, string description, int urgency)
+	public static Issue Create(string title, string category, string authorId, string author, string description, int urgency, DateTime dateTime)
 	{
-		return new Issue(++_issueCount, title, category, authorId, author, description, urgency, DateTime.UtcNow);
+		return new Issue(++_issueCount, title, category, authorId, author, description, urgency, dateTime);
 	}
 
 	public ErrorOr<Success> Remove()

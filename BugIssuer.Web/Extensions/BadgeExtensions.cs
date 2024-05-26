@@ -43,10 +43,10 @@ public static class Badge
                 badgeClass = "badge badge-danger";
                 break;
             case Status.Closed:
-                badgeClass = "badge badge-default";
+                badgeClass = "badge badge-success";
                 break;
             default:
-                badgeClass = "badge badge-info";
+                badgeClass = "badge badge-default";
                 break;
         }
 

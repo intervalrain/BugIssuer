@@ -1,8 +1,52 @@
-﻿@{
+﻿@model ProfileViewModel
+@{
     ViewData["Title"] = "Profile";
+    var currentSort = Convert.ToString(ViewData["CurrentSort"]);
+    var currentFilter = Convert.ToString(ViewData["CurrentFilter"]);
+    var btnAll = string.IsNullOrEmpty(currentFilter) || currentFilter == "All" ? "btn-primary" : "btn-light";
+    var btnOpen = currentFilter == "Open" ? "btn-primary" : "btn-light";
+    var btnOngoing = currentFilter == "Ongoing" ? "btn-primary" : "btn-light";
+    var btnClosed = currentFilter == "Closed" ? "btn-primary" : "btn-light";
 }
 
 <div class="container">
-    <h2>Profile</h2>
-    <p>Here you can see your profile.</p>
+    <div class="card mb-3">
+        <div class="profile-card">
+            <h2>User Profile</h2>
+        </div>
+        <div class="profile-info">
+            <div><span>User Id:</span> @Model.CurrentUser.UserId</div>
+            <div><span>User Name:</span> @Model.CurrentUser.UserName</div>
+            <div><span>Email:</span> @Model.CurrentUser.Email</div>
+            <div><span>Role:</span> @string.Join(", ", Model.CurrentUser.Roles)</div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="card-title">Open Issues</div>
+                    <p class="card-text">@Model.OpenIssuesCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="card-title">Ongoing Issues</div>
+                    <p class="card-text">@Model.OngoingIssuesCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="card-title">Closed Issues</div>
+                    <p class="card-text">@Model.ClosedIssuesCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.Partial("_IssuesPartial", Model.Issues)
 </div>

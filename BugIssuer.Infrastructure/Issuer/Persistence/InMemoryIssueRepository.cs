@@ -1,4 +1,6 @@
-﻿using BugIssuer.Application.Common.Interfaces;
+﻿using System.Net.NetworkInformation;
+
+using BugIssuer.Application.Common.Interfaces;
 using BugIssuer.Domain;
 using BugIssuer.Domain.Enums;
 
@@ -7,6 +9,7 @@ namespace BugIssuer.Infrastructure.Issuer.Persistence;
 
 public class InMemoryIssueRepository : IIssueRepository
 {
+    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly Dictionary<int, Issue> _dbContext;
     private static int _issueCount;
 
@@ -14,17 +17,21 @@ public class InMemoryIssueRepository : IIssueRepository
     {
         var issues = new List<Issue>
         {
-            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test1", 1),
-            Issue.Create("test2", "Query UI", "00012415", "Yao", "test2", 2),
-            Issue.Create("test3", "Wafer Map", "00012415", "Yao", "test3", 3),
-            Issue.Create("test4", "Contour Plot", "00012415", "Yao", "test4", 4),
-            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test5", 5)
+            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test1", 1, _dateTimeProvider.Now),
+            Issue.Create("test2", "Query UI", "00012415", "Yao", "test2", 2, _dateTimeProvider.Now),
+            Issue.Create("test3", "Wafer Map", "00012415", "Yao", "test3", 3, _dateTimeProvider.Now),
+            Issue.Create("test4", "Contour Plot", "00012415", "Yao", "test4", 4, _dateTimeProvider.Now),
+            Issue.Create("test5", "Raw Data", "00012415", "Yao", "test5", 5, _dateTimeProvider.Now),
+            Issue.Create("test6", "Raw Data", "00058163", "Mark", "test6", 3, _dateTimeProvider.Now),
+            Issue.Create("test7", "Raw Data", "00058163", "Mark", "test7", 3, _dateTimeProvider.Now)
         };
         await AddIssueAsync(issues[0], CancellationToken.None);
         await AddIssueAsync(issues[1], CancellationToken.None);
         await AddIssueAsync(issues[2], CancellationToken.None);
         await AddIssueAsync(issues[3], CancellationToken.None);
         await AddIssueAsync(issues[4], CancellationToken.None);
+        await AddIssueAsync(issues[5], CancellationToken.None);
+        await AddIssueAsync(issues[6], CancellationToken.None);
 
         issues[0].AddComment("00053997", "Rain Hu", "Hello", DateTime.Now);
         issues[0].AddComment("00053997", "Rain Hu", "Yao sir, Can you describe the issue in detail?", DateTime.Now);
@@ -34,10 +41,11 @@ public class InMemoryIssueRepository : IIssueRepository
         issues[3].Assign("Yue");
     }
 
-    public InMemoryIssueRepository()
+    public InMemoryIssueRepository(IDateTimeProvider dateTimeProvider)
     {
         _dbContext = new Dictionary<int, Issue>();
         _issueCount = 0;
+        _dateTimeProvider = dateTimeProvider;
         AddFakeData().GetAwaiter().GetResult();
     }
 
@@ -60,6 +68,11 @@ public class InMemoryIssueRepository : IIssueRepository
     public async Task<List<Issue>> ListIssuesAsync(CancellationToken cancellationToken)
     {
         return await Task.Run(() => _dbContext.Select(x => x.Value).ToList());
+    }
+
+    public async Task<List<Issue>> ListIssuesByAuthorIdAsync(string authorId, CancellationToken cancellationToken)
+    {
+        return await Task.Run(() => _dbContext.Select(x => x.Value).Where(x => x.AuthorId == authorId).ToList());
     }
 
     public async Task<List<Issue>> ListIssuesByStatusAsync(Status status, CancellationToken cancellationToken)

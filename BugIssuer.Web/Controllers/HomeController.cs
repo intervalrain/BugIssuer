@@ -9,20 +9,31 @@ using BugIssuer.Application.Issuer.Commands.NewComment;
 using BugIssuer.Application.Issuer.Commands.CreateIssue;
 using BugIssuer.Application.Issuer.Commands.UpdateIssue;
 using BugIssuer.Application.Issuer.Commands.RemoveIssue;
+using BugIssuer.Application.Issuer.Queries.ListMyIssues;
+using BugIssuer.Domain;
+using BugIssuer.Application.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace BugIssuer.Web.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly ISender _sender;
     private readonly IWebHostEnvironment _environment;
+    private readonly ICurrentUserProvider _userProvider;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
-    public HomeController(ILogger<HomeController> logger, ISender sender, IWebHostEnvironment environment)
+    public HomeController(ILogger<HomeController> logger, ISender sender, IWebHostEnvironment environment, ICurrentUserProvider userProvider, IDateTimeProvider dateTimeProvider)
     {
         _logger = logger;
         _sender = sender;
         _environment = environment;
+        _userProvider = userProvider;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public IActionResult Index()
@@ -40,28 +51,45 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Profile()
+    private static ViewDataDictionary FetchCurrentStatus(ViewDataDictionary viewData, string sortOrder, string filterStatus)
     {
-        return View();
+        viewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
+        viewData["CategorySortParm"] = sortOrder == "Category" ? "category_desc" : "Category";
+        viewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
+        viewData["AuthorSortParm"] = sortOrder == "Author" ? "author_desc" : "Author";
+        viewData["DateTimeSortParm"] = sortOrder == "DateTime" ? "datetime_desc" : "DateTime";
+        viewData["LastUpdateSortParm"] = sortOrder == "LastUpdate" ? "lastupdate_desc" : "LastUpdate";
+        viewData["CommentsSortParm"] = sortOrder == "Comments" ? "comments_desc" : "Comments";
+        viewData["AssigneeSortParm"] = sortOrder == "Assignee" ? "assignee_desc" : "Assignee";
+        viewData["UrgencySortParm"] = sortOrder == "Urgency" ? "urgency_desc" : "Urgency";
+        viewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
+
+        viewData["CurrentFilter"] = filterStatus;
+        viewData["CurrentSort"] = sortOrder;
+
+        return viewData;
+    }
+
+    public IActionResult Profile(string sortOrder, string filterStatus)
+    {
+        var user = _userProvider.CurrentUser;
+
+        var query = new ListMyIssuesQuery(user.UserId, sortOrder, filterStatus);
+
+        ViewData = FetchCurrentStatus(ViewData, sortOrder, filterStatus);
+
+        var result = _sender.Send(query).GetAwaiter().GetResult();
+
+        var model = new ProfileViewModel(result.Value, user);
+        
+        return View(model);
     }
 
     public IActionResult Issues(string sortOrder, string filterStatus)
     {
         var query = new ListIssuesQuery(sortOrder, filterStatus);
 
-        ViewData["IdSortParm"] = String.IsNullOrEmpty(sortOrder) ? "id_desc" : "";
-        ViewData["CategorySortParm"] = sortOrder == "Category" ? "category_desc" : "Category";
-        ViewData["TitleSortParm"] = sortOrder == "Title" ? "title_desc" : "Title";
-        ViewData["AuthorSortParm"] = sortOrder == "Author" ? "author_desc" : "Author";
-        ViewData["DateTimeSortParm"] = sortOrder == "DateTime" ? "datetime_desc" : "DateTime";
-        ViewData["LastUpdateSortParm"] = sortOrder == "LastUpdate" ? "lastupdate_desc" : "LastUpdate";
-        ViewData["CommentsSortParm"] = sortOrder == "Comments" ? "comments_desc" : "Comments";
-        ViewData["AssigneeSortParm"] = sortOrder == "Assignee" ? "assignee_desc" : "Assignee";
-        ViewData["UrgencySortParm"] = sortOrder == "Urgency" ? "urgency_desc" : "Urgency";
-        ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
-
-        ViewData["CurrentFilter"] = filterStatus;
-        ViewData["CurrentSort"] = sortOrder;
+        ViewData = FetchCurrentStatus(ViewData, sortOrder, filterStatus);
 
         var result = _sender.Send(query).GetAwaiter().GetResult();
 
@@ -70,11 +98,18 @@ public class HomeController : Controller
 
     public IActionResult Issue(int id)
     {
-        var query = new GetIssueQuery(id);
+        var authorId = _userProvider.CurrentUser.UserId;
+
+        var query = new GetIssueQuery(authorId, id);
 
         var issue = _sender.Send(query).GetAwaiter().GetResult();
 
         return View(issue.Value);
+    }
+
+    public IActionResult IssuesPartial(IEnumerable<Issue> issues)
+    {
+        return PartialView("_IssuesPartial", issues);
     }
 
     [HttpGet]
@@ -88,7 +123,9 @@ public class HomeController : Controller
     {
         if (ModelState.IsValid)
         {
-            var command = new CreateIssueCommand(model.Title, model.Description, model.Category, model.Urgency, "00123", "Yao");
+            var user = _userProvider.CurrentUser;
+
+            var command = new CreateIssueCommand(model.Title, model.Description, model.Category, model.Urgency, user.UserId, user.UserName, _dateTimeProvider.Now);
 
             var issue = _sender.Send(command).GetAwaiter().GetResult();
 
@@ -100,7 +137,9 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> EditIssue(int id)
     {
-        var query = new GetIssueQuery(id);
+        var authorId = _userProvider.CurrentUser.UserId;
+        
+        var query = new GetIssueQuery(authorId, id);
 
         var result  = await _sender.Send(query);
         
@@ -127,8 +166,12 @@ public class HomeController : Controller
     {
         if (ModelState.IsValid)
         {
-            var query = new GetIssueQuery(model.IssueId);
+            var authorId = _userProvider.CurrentUser.UserId;
+
+            var query = new GetIssueQuery(authorId, model.IssueId);
+
             var result = await _sender.Send(query);
+
             if (result.IsError)
             {
                 return Problem();
