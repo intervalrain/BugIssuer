@@ -13,7 +13,6 @@ using BugIssuer.Application.Issuer.Queries.ListMyIssues;
 using BugIssuer.Domain;
 using BugIssuer.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace BugIssuer.Web.Controllers;
