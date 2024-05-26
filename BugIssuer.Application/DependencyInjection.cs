@@ -1,5 +1,7 @@
 ﻿using BugIssuer.Application.Common.Behaviors;
 
+using FluentValidation;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BugIssuer.Application;
@@ -11,9 +13,11 @@ public static class DependencyInjection
         services.AddMediatR(options =>
         {
             options.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
-            // AuthorizationBehavior
+            options.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
             options.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+
+        services.AddValidatorsFromAssemblyContaining(typeof(DependencyInjection));
 
         return services;
     }
