@@ -1,7 +1,7 @@
 ﻿using BugIssuer.Domain;
 using BugIssuer.Domain.Enums;
 
-namespace BugIssuer.Application.Common.Interfaces;
+namespace BugIssuer.Application.Common.Interfaces.Persistence;
 
 public interface IIssueRepository
 {

@@ -1,19 +1,26 @@
-﻿@using BugIssuer.Domain;
-@using BugIssuer.Web.Extensions; 
+﻿@using BugIssuer.Domain.Enums;
+@using BugIssuer.Web.Extensions;
 @using Markdig;
 
-@model Issue
+@model IssueViewModel
 
 @{
-    ViewData["Title"] = "Issue" + Model.IssueId;
+    ViewData["Title"] = "Issue" + Model.Issue.IssueId;
 }
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Issue Description</h2>
         <div>
-            <a href="@Url.Action("EditIssue", "Home", new { id = Model.IssueId })" class="btn btn-outline-primary">Edit</a>
-            <button class="btn btn-danger" id="delete-button">Delete</button>
+            <a href="@Url.Action("EditIssue", "Issues", new { id = Model.Issue.IssueId })" class="btn btn-outline-primary">Edit</a>
+            @if (Model.Issue.Status == Status.Deleted)
+            {
+
+            }
+            else
+            {
+                <button class="btn btn-danger" id="delete-button">Delete</button>
+            }
         </div>
     </div>
 
@@ -21,29 +28,29 @@
         <div class="card-header">
             <div class="d-flex justify-content-between">
                 <div class="card-title w-100">
-                    <h3>@Model.Title</h3>
+                    <h3>@Model.Issue.Title</h3>
                     <div class="badge-container mt-2">
-                        <span class="badge badge-secondary">@Model.Category</span>
-                        <span class="@Badge.UrgencyToBadge(Model.Urgency)">@Model.Urgency</span>
-                        <span class="@Badge.StatusToBadge(Model.Status)">@Model.Status</span>
+                        <span class="badge badge-secondary">@Model.Issue.Category</span>
+                        <span class="@Badge.UrgencyToBadge(Model.Issue.Urgency)">@Model.Issue.Urgency</span>
+                        <span class="@Badge.StatusToBadge(Model.Issue.Status)">@Model.Issue.Status</span>
                     </div>
                 </div>
                 <div class="text-muted">
-                    <div>@Model.AuthorId</div>
-                    <div>@Model.Author</div>
-                    <div>@Model.LastUpdateDate</div>
-                    <div>@Model.LastUpdateTime</div>
+                    <div>@Model.Issue.AuthorId</div>
+                    <div>@Model.Issue.Author</div>
+                    <div>@Model.Issue.LastUpdateDate</div>
+                    <div>@Model.Issue.LastUpdateTime</div>
                 </div>
             </div>
         </div>
         <div class="card-body">
-            <p>@Html.Raw(Markdown.ToHtml(Model.Description))</p>
+            <p>@Html.Raw(Markdown.ToHtml(Model.Issue.Description))</p>
         </div>
-        @foreach (var comment in Model.Comments)
+        @foreach (var comment in Model.Issue.Comments)
         {
             <div class="card-header">
                 <div class="d-flex justify-content-between">
-                    <h5># @comment.CommentId</h5>    
+                    <h5># @comment.CommentId</h5>
                     <div class="text-muted">
                         <div>@comment.AuthorId</div>
                         <div>@comment.Author</div>
@@ -62,10 +69,10 @@
                     <textarea id="CommentContent" name="CommentContent" class="form-control" placeholder="Enter Comment"></textarea>
                 </div>
                 <div class="form-group">
-                    <input type="hidden" id="IssueId" name="IssueId" class="form-control" value="@Model.IssueId" />
+                    <input type="hidden" id="IssueId" name="IssueId" class="form-control" value="@Model.Issue.IssueId" />
                 </div>
-                <button type="submit" class="btn btn-success">Post</button>
-            </form>            
+                <button type="submit" class="btn btn-success" id="post-button" name="post-button">Post</button>
+            </form>
         </div>
     </div>
 </div>
@@ -133,7 +140,7 @@
             if (confirm("Are you sure you want to delete this issue?")) {
                 var id = Number(document.getElementById("IssueId").value);
 
-                fetch('/Home/DeleteIssue', {
+                fetch('/Issues/DeleteIssue', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -142,7 +149,7 @@
                 })
                 .then(response => {
                     if (response.ok) {
-                        window.location.href = "/Home/Issues";
+                        window.location.href = "/Issues";
                     } else {
                         alert("Failed to delete issue");
                     }
@@ -150,8 +157,45 @@
                 .catch(error => {
                     console.error('Error deleting issue', error);
                 });
-            } 
+            }
         });
-    });
 
+
+        document.getElementById("post-button").addEventListener("click", function () {
+            const issueId = document.querySelector("#IssueId").value;
+            const content = simplemde.value();
+
+            const formData = {
+                IssueId: issueId,
+                CommentContent: content
+            };
+
+            fetch('/Issues/NewComment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => {
+                        alert("Failed to post comment: " + text);
+                        throw new Error("Failed to post comment: " + text);
+                    });
+                }
+            })
+            .then(data => {
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                }
+            })
+            .catch(error => {
+                console.error('Error posting comment', error);
+            });
+        });
+
+    });
 </script>

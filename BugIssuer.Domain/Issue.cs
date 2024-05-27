@@ -64,10 +64,6 @@ public class Issue : Entity
 			return Error.Forbidden(description: "The issue has already been accepted.");
 		}
 
-		if (Comments.Any())
-		{
-			return Error.Forbidden(description: "The issue cannot be deleted because there are some comments.");
-		}
 		Status = Status.Deleted;
 
 		_domainEvents.Add(new IssueRemovedEvent(IssueId));

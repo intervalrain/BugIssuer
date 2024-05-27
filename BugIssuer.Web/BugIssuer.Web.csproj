@@ -11,6 +11,10 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
     <None Remove="Extensions\" />
+    <None Remove="Views\Overview\" />
+    <None Remove="Views\VersionLog\" />
+    <None Remove="Views\Issues\" />
+    <None Remove="Views\Profile\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
@@ -40,5 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="Views\Overview\" />
+    <Folder Include="Views\VersionLog\" />
+    <Folder Include="Views\Issues\" />
+    <Folder Include="Views\Profile\" />
   </ItemGroup>
 </Project>

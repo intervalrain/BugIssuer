@@ -37,7 +37,7 @@
             <div id="issue-list-container">
                 @foreach (var issue in Model)
                 {
-                <tr class="clickable-row" data-href="/Home/Issue/@issue.IssueId">
+                <tr class="clickable-row" data-href="/Issues/Issue/@issue.IssueId">
                     <td>@issue.IssueId</td>
                     <td>@issue.Category</td>
                     <td>@issue.Title</td>
@@ -50,16 +50,18 @@
                     <td><span class="@Badge.StatusToBadge(issue.Status)">@issue.Status</span></td>
                 </tr>
             }
-    </div>
-    </tbody>
+            </div>
+        </tbody>
     </table>
-    </div>
+</div>
 
-    <script>document.addEventListener("DOMContentLoaded", function () {
-            var rows = document.querySelectorAll(".clickable-row");
-            rows.forEach(function (row) {
-                row.addEventListener("click", function () {
-                    window.location = row.getAttribute("data-href");
-                });
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var rows = document.querySelectorAll(".clickable-row");
+        rows.forEach(function (row) {
+            row.addEventListener("click", function () {
+                window.location = row.getAttribute("data-href");
             });
-        });</script>
+        });
+    });
+</script>

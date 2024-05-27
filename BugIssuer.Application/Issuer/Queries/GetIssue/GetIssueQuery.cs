@@ -6,4 +6,4 @@ using MediatR;
 
 namespace BugIssuer.Application.Issuer.Queries.GetIssue;
 
-public record GetIssueQuery(string AuthorId, int IssueId) : IRequest<ErrorOr<Issue>>;
+public record GetIssueQuery(string Applicant, int IssueId) : IRequest<ErrorOr<Issue>>;

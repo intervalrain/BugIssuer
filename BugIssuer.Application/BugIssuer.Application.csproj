@@ -22,6 +22,7 @@
     <None Remove="Common\Security\" />
     <None Remove="Common\Security\Users\" />
     <None Remove="Common\Security\Request\" />
+    <None Remove="Common\Interfaces\Persistence\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Issuer\" />
@@ -41,6 +42,7 @@
     <Folder Include="Common\Security\" />
     <Folder Include="Common\Security\Users\" />
     <Folder Include="Common\Security\Request\" />
+    <Folder Include="Common\Interfaces\Persistence\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="2.0.1" />

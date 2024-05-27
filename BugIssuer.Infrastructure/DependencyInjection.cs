@@ -1,6 +1,8 @@
 ﻿using BugIssuer.Application.Common.Interfaces;
+using BugIssuer.Application.Common.Interfaces.Persistence;
 using BugIssuer.Infrastructure.Common.Services;
-using BugIssuer.Infrastructure.Issuer.Persistence;
+using BugIssuer.Infrastructure.Issuer.Persistence.Issues;
+using BugIssuer.Infrastructure.Issuer.Persistence.Users;
 using BugIssuer.Infrastructure.Security;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +33,7 @@ public static class DependencyInjection
     private static IServiceCollection AddAuthorization(this IServiceCollection services)
     {
         services.AddSingleton<ICurrentUserProvider, CurrentUserProvider>();
+        services.AddSingleton<IAdminProvider, AdminProvider>();
         return services;
     }
 
@@ -39,6 +42,7 @@ public static class DependencyInjection
         //services.AddDbContext<AppDbContext>(options => options.UseNpgsql(""));
 
         services.AddSingleton<IIssueRepository, InMemoryIssueRepository>();
+        services.AddSingleton<IUserRepository, InMemoryUserRepository>();
 
         return services;
     }

@@ -1,6 +1,6 @@
 ﻿using BugIssuer.Domain;
 
-namespace BugIssuer.Application.Common.Interfaces;
+namespace BugIssuer.Application.Common.Interfaces.Persistence;
 
 public interface IUserRepository
 {

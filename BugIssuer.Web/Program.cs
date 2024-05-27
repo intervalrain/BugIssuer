@@ -12,8 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddControllersWithViews();
     builder.Services.AddAuthentication("FakeScheme")
-        .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>("FakeScheme", options => { });
+                    .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>("FakeScheme", options => { });
     builder.Services.AddAuthorization();
+
+    builder.Services.AddControllers()
+                    .AddJsonOptions(options =>
+                    {
+                        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                    });
 
     //builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme);
     //builder.Services.Configure<IISOptions>(options =>

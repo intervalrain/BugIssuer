@@ -7,5 +7,7 @@ public class CurrentUser
     public string Email;
     public IReadOnlyList<string> Permissions;
     public IReadOnlyList<string> Roles;
+
+    public bool IsAdmin() => Roles.Contains("admin");
 }
 

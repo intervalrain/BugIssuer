@@ -1,13 +1,11 @@
-﻿using System.Net.NetworkInformation;
-
-using BugIssuer.Application.Common.Interfaces;
+﻿using BugIssuer.Application.Common.Interfaces.Persistence;
 using BugIssuer.Domain;
 using BugIssuer.Domain.Enums;
 using BugIssuer.Infrastructure.Common.Persistance;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace BugIssuer.Infrastructure.Issuer.Persistence;
+namespace BugIssuer.Infrastructure.Issuer.Persistence.Issues;
 
 public class IssueRepository : IIssueRepository
 {

@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using BugIssuer.Application.Common.Interfaces.Persistence;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
@@ -7,31 +10,38 @@ namespace BugIssuer.Web;
 
 public class FakeAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
+    private readonly IUserRepository _userRepository;
+    private readonly IAdminProvider _adminProvider;
+    private readonly string _userId = "00053997";
+
     public FakeAuthenticationHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock)
+        ISystemClock clock,
+        IUserRepository userRepository,
+        IAdminProvider adminProvider)
         : base(options, logger, encoder, clock)
-    { }
-
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var roles = new string[]
-        {
-            "employee",
-            "admin"
-        };
+        _userRepository = userRepository;
+        _adminProvider = adminProvider;
+    }
 
-        var permissions = new string[]
-        {
-        };
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var user = await _userRepository.GetUserByIdAsync(_userId, CancellationToken.None);
+
+        bool isAdmin = _adminProvider.IsAdmin(_userId);
+
+        var roles = isAdmin ? new string[] { "user", "admin" } : new string[] { "user" };
+
+        var permissions = new string[] { };
 
         var claims = new List<Claim>
         {
-            new Claim("id", "00053997"),
-            new Claim(ClaimTypes.Name, "Rain Hu"),
-            new Claim(ClaimTypes.Email, "rain_hu@umc.com"),
+            new Claim("id", _userId),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Email, user.Email),
         };
 
         foreach (var role in roles)
@@ -48,7 +58,7 @@ public class FakeAuthenticationHandler : AuthenticationHandler<AuthenticationSch
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, "FakeScheme");
 
-        return Task.FromResult(AuthenticateResult.Success(ticket));
+        return await Task.FromResult(AuthenticateResult.Success(ticket));
     }
 }
 

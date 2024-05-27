@@ -1,4 +1,4 @@
-﻿using BugIssuer.Application.Common.Interfaces;
+﻿using BugIssuer.Application.Common.Interfaces.Persistence;
 using BugIssuer.Domain;
 using BugIssuer.Domain.Enums;
 
@@ -20,13 +20,13 @@ public class ListIssuesQueryHandler : IRequestHandler<ListIssuesQuery, ErrorOr<L
     public async Task<ErrorOr<List<Issue>>> Handle(ListIssuesQuery request, CancellationToken cancellationToken)
     {
         List<Issue>? issues = default;
-        if (request.filterStatus == "All" || string.IsNullOrEmpty(request.filterStatus))
+        if (request.FilterStatus == "All" || string.IsNullOrEmpty(request.FilterStatus))
         {
             issues = await _issueRepository.ListIssuesAsync(cancellationToken);
         }
         else
         {
-            var status = request.filterStatus switch
+            var status = request.FilterStatus switch
             {
                 "Open" => Status.Open,
                 "Ongoing" => Status.Ongoing,
@@ -44,7 +44,9 @@ public class ListIssuesQueryHandler : IRequestHandler<ListIssuesQuery, ErrorOr<L
 
         Sort(ref issues, request.SortOrder);
 
-        return issues.Where(issue => issue.Status != Status.Deleted).ToList();
+        return request.IsAdmin
+            ? issues
+            : issues.Where(issue => issue.Status != Status.Deleted).ToList();
     }
 
     private void Sort(ref List<Issue> issues, string sortOrder)

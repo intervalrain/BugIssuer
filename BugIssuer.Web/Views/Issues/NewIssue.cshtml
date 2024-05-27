@@ -38,7 +38,7 @@
                 <div class="form-group">
                     <textarea id="Description" name="Description" class="form-control" placeholder="Enter description"></textarea>
                 </div>
-                <button type="submit" class="btn btn-success">Post</button>
+                <button type="submit" class="btn btn-success" id="post-button" name="post-button">Post</button>
             </div>
         </div>
     </form>
@@ -51,7 +51,8 @@
 <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
-<script>var simplemde = new SimpleMDE({
+<script>
+    var simplemde = new SimpleMDE({
         element: document.getElementById("Description"),
         spellChecker: false,
         status: false,
@@ -88,19 +89,63 @@
             method: 'POST',
             body: formData
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    var cm = simplemde.codemirror;
-                    var doc = cm.getDoc();
-                    var cursor = doc.getCursor();
-                    doc.replaceRange("![Image](" + data.url + ")", cursor);
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                var cm = simplemde.codemirror;
+                var doc = cm.getDoc();
+                var cursor = doc.getCursor();
+                doc.replaceRange("![Image](" + data.url + ")", cursor);
+            } else {
+                alert("Failed to upload image");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Failed to upload image");
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("post-button").addEventListener("click", function () {
+            
+            const title = document.querySelector("#Title").value;
+            const category = document.querySelector("#Category").value;
+            const urgency = document.querySelector("input[name='Urgency']:checked").value;
+            const description = simplemde.value();
+
+            const formData = {
+                Title: title,
+                Category: category,
+                Urgency: urgency,
+                Description: description
+            };
+
+            fetch('/Issues/NewIssue', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
                 } else {
-                    alert("Failed to upload image");
+                    return response.text().then(text => {
+                        alert("Failed to post issue: " + text);
+                        throw new Error("Failed to post issue: " + text);
+                    });
+                }
+            })
+            .then(data => {
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert("Failed to upload image");
+                console.error('Error posting issue', error);
             });
-    }</script>
+        });
+    });
+</script>

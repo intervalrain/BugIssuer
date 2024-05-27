@@ -1,4 +1,5 @@
 ﻿using BugIssuer.Application.Common.Interfaces;
+using BugIssuer.Application.Common.Interfaces.Persistence;
 
 using ErrorOr;
 
