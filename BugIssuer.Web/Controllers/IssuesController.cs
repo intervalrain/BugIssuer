@@ -45,9 +45,9 @@ public class IssuesController : ApiController
     [HttpGet("Issue/{id:int}")]
     public IActionResult Issue(int id)
     {
-        var authorId = CurrentUser.UserId;
+        var applicant = CurrentUser.UserId;
 
-        var query = new GetIssueQuery(authorId, id);
+        var query = new GetIssueQuery(applicant, id);
 
         var result = Mediator.Send(query).GetAwaiter().GetResult();
 
@@ -60,7 +60,8 @@ public class IssuesController : ApiController
         var model = new IssueViewModel
         {
             Issue = issue,
-            IsAdmin = CurrentUser.IsAdmin()
+            IsAdmin = CurrentUser.IsAdmin(),
+            IsAuthor = issue.AuthorId == applicant
         };
 
         return View(model);
@@ -145,7 +146,7 @@ public class IssuesController : ApiController
 
             if (result.IsError)
             {
-                return Problem();
+                return Problem(result.Errors);
             }
             var issue = result.Value;
 
@@ -158,6 +159,12 @@ public class IssuesController : ApiController
                 model.Urgency
                 );
             var response = await Mediator.Send(command);
+
+            if (response.IsError)
+            {
+                return Problem(response.Errors);
+            }
+
             return RedirectToAction(nameof(Issue), new { id = model.IssueId });
         }
         return View(model);

@@ -11,5 +11,8 @@ public class IssueViewModel
 
     [Required]
     public bool IsAdmin { get; set; }
+
+    [Required]
+    public bool IsAuthor { get; set; }
 }
 

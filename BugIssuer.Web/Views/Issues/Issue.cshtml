@@ -12,7 +12,11 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Issue Description</h2>
         <div>
-            <a href="@Url.Action("EditIssue", "Issues", new { id = Model.Issue.IssueId })" class="btn btn-outline-primary">Edit</a>
+            @if (Model.IsAuthor || Model.IsAdmin)
+            {
+                <a href="@Url.Action("EditIssue", "Issues", new { id = Model.Issue.IssueId })" class="btn btn-outline-primary">Edit</a>
+            }
+            
             @if (Model.Issue.Status == Status.Deleted)
             {
 
@@ -114,7 +118,7 @@
         var formData = new FormData();
         formData.append("file", file);
 
-        fetch('/Home/UploadImage', {
+        fetch('/Issues/UploadImage', {
             method: 'POST',
             body: formData
         })
@@ -196,6 +200,5 @@
                 console.error('Error posting comment', error);
             });
         });
-
     });
 </script>

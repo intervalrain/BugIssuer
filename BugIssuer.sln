@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BugIssuer.Application", "Bu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BugIssuer.Web", "BugIssuer.Web\BugIssuer.Web.csproj", "{30E4299C-5443-4216-854D-D2D6847AF575}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BugIssuer.Test", "BugIssuer.Test\BugIssuer.Test.csproj", "{0D5436CB-EE3C-428C-8D9A-3058778EE1D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{30E4299C-5443-4216-854D-D2D6847AF575}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30E4299C-5443-4216-854D-D2D6847AF575}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30E4299C-5443-4216-854D-D2D6847AF575}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D5436CB-EE3C-428C-8D9A-3058778EE1D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D5436CB-EE3C-428C-8D9A-3058778EE1D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D5436CB-EE3C-428C-8D9A-3058778EE1D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D5436CB-EE3C-428C-8D9A-3058778EE1D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

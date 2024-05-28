@@ -33,14 +33,14 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <input type="hidden" id="IssueId" class="form-control" name="IssueId" asp-for="IssueId" required/>
+                    <input type="hidden" id="IssueId" class="form-control" name="IssueId" asp-for="IssueId" required />
                 </div>
             </div>
             <div class="card-body">
                 <div class="form-group">
                     <textarea id="Description" name="Description" class="form-control" placeholder="Enter description" asp-for="Description"></textarea>
                 </div>
-                <button type="submit" class="btn btn-success">Post</button>
+                <button type="submit" class="btn btn-success" id="post-button" name="post-button">Post</button>
             </div>
         </div>
     </form>
@@ -53,56 +53,102 @@
 <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
-<script>var simplemde = new SimpleMDE({
-        element: document.getElementById("Description"),
-        spellChecker: false,
-        status: false,
-    });
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var simplemde = new SimpleMDE({
+            element: document.getElementById("Description"),
+            spellChecker: false,
+            status: false,
+        });
 
-    simplemde.codemirror.on("drop", function (editor, event) {
-        event.preventDefault();
-        var files = event.dataTransfer.files;
-        handleFiles(files);
-    });
+        simplemde.codemirror.on("drop", function (editor, event) {
+            event.preventDefault();
+            var files = event.dataTransfer.files;
+            handleFiles(files);
+        });
 
-    simplemde.codemirror.on("paste", function (editor, event) {
-        var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-        for (var index in items) {
-            var item = items[index];
-            if (item.kind === 'file') {
-                var blob = item.getAsFile();
-                handleFiles([blob]);
+        simplemde.codemirror.on("paste", function (editor, event) {
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (var index in items) {
+                var item = items[index];
+                if (item.kind === 'file') {
+                    var blob = item.getAsFile();
+                    handleFiles([blob]);
+                }
+            }
+        });
+
+        function handleFiles(files) {
+            for (var i = 0; i < files.length; i++) {
+                uploadFile(files[i]);
             }
         }
-    });
 
-    function handleFiles(files) {
-        for (var i = 0; i < files.length; i++) {
-            uploadFile(files[i]);
-        }
-    }
+        function uploadFile(file) {
+            var formData = new FormData();
+            formData.append("file", file);
 
-    function uploadFile(file) {
-        var formData = new FormData();
-        formData.append("file", file);
-
-        fetch('/Home/UploadImage', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    var cm = simplemde.codemirror;
-                    var doc = cm.getDoc();
-                    var cursor = doc.getCursor();
-                    doc.replaceRange("![Image](" + data.url + ")", cursor);
-                } else {
-                    alert("Failed to upload image");
-                }
+            fetch('/Issues/UploadImage', {
+                method: 'POST',
+                body: formData
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Failed to upload image");
-            });
-    }</script>
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        var cm = simplemde.codemirror;
+                        var doc = cm.getDoc();
+                        var cursor = doc.getCursor();
+                        doc.replaceRange("![Image](" + data.url + ")", cursor);
+                    } else {
+                        alert("Failed to upload image");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Failed to upload image");
+                });
+        }
+
+        document.getElementById("post-button").addEventListener("click", function () {
+            const issueId = document.querySelector("#IssueId").value;
+            const title = document.querySelector("#Title").value;
+            const category = document.querySelector("#Category").value;
+            const urgency = document.querySelector("#Urgency").value;
+            const description = simplemde.value();
+
+            const formData = {
+                IssueId = issueId,
+                Title = title,
+                Category = category,
+                Urgency = urgency,
+                Description = description
+            };
+
+            fetch('/Issues/EditIssue', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (resopnse.ok) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            alert("Failed to edit issue: " + text);
+                            throw new Error("Failed to edit issue: " + text);
+                        });
+                    }
+                })
+                .then(data => {
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error editing issue' error);
+                });
+        })
+    })
+</script>

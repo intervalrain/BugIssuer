@@ -38,7 +38,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         var policies  = attrs
             .SelectMany(attr => attr.Policies?.Split(',') ?? new string[0]).ToList();
 
-        var result = _authorizationService.AuthorizaCurrentUser(
+        var result = _authorizationService.AuthorizeCurrentUser(
             request,
             roles,
             permissions,

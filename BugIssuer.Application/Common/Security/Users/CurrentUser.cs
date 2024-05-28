@@ -2,11 +2,11 @@
 
 public class CurrentUser
 {
-    public string UserId;
-    public string UserName;
-    public string Email;
-    public IReadOnlyList<string> Permissions;
-    public IReadOnlyList<string> Roles;
+    public string UserId { get; init; }
+    public string UserName { get; init; }
+    public string Email { get; init; }
+    public IReadOnlyList<string> Permissions { get; init; }
+    public IReadOnlyList<string> Roles { get; init; }
 
     public bool IsAdmin() => Roles.Contains("admin");
 }
