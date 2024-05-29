@@ -16,18 +16,20 @@
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.5" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="IntegrationTests\" />
-    <None Remove="SubcutaneousTests\" />
     <None Remove="DomainUnitTests\" />
     <None Remove="ApplicationUnitTests\" />
     <None Remove="Common\" />
+    <None Remove="SubcutaneousTests\Common\WebAppFactory.csEmptyClass" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IntegrationTests\" />
-    <Folder Include="SubcutaneousTests\" />
     <Folder Include="DomainUnitTests\" />
     <Folder Include="ApplicationUnitTests\" />
     <Folder Include="Common\" />

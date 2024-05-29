@@ -14,6 +14,7 @@
     <None Remove="Security\" />
     <None Remove="Issuer\Persistence\Issues\" />
     <None Remove="Issuer\Persistence\Users\" />
+    <None Remove="Common\Migrations\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\" />
@@ -25,6 +26,7 @@
     <Folder Include="Security\" />
     <Folder Include="Issuer\Persistence\Issues\" />
     <Folder Include="Issuer\Persistence\Users\" />
+    <Folder Include="Common\Migrations\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />

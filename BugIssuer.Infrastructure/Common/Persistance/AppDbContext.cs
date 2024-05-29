@@ -1,4 +1,5 @@
-﻿using BugIssuer.Domain;
+﻿using BugIssuer.Application.Common.Interfaces.Persistence;
+using BugIssuer.Domain;
 using BugIssuer.Domain.Common;
 using BugIssuer.Infrastructure.Common.Middleware;
 
@@ -15,20 +16,12 @@ public class AppDbContext : DbContext
     private readonly IPublisher _publisher;
 
     public DbSet<Issue> Issues { get; set; } = null!;
-    public DbSet<Comment> Comments { get; set; } = null!;
 
-    public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor, IPublisher publisher)
+    public AppDbContext(DbContextOptions options, IHttpContextAccessor httpContextAccessor, IPublisher publisher)
         : base(options)
     {
         _httpContextAccessor = httpContextAccessor;
         _publisher = publisher;
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-
-        base.OnModelCreating(modelBuilder);
     }
 
     public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -42,9 +35,15 @@ public class AppDbContext : DbContext
             AddDomainEventsToOfflineProcessingQueue(domainEvents);
             return await base.SaveChangesAsync(cancellationToken);
         }
-
         await PublishDomainEvents(domainEvents);
-        return await base.SaveChangesAsync(cancellationToken);
+        return await base.SaveChangesAsync();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+        base.OnModelCreating(modelBuilder);
     }
 
     private async Task PublishDomainEvents(List<IDomainEvent> domainEvents)
