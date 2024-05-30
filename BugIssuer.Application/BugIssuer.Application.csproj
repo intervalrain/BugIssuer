@@ -23,6 +23,9 @@
     <None Remove="Common\Security\Users\" />
     <None Remove="Common\Security\Request\" />
     <None Remove="Common\Interfaces\Persistence\" />
+    <None Remove="Common\Security\Permissions\" />
+    <None Remove="Common\Security\Policies\" />
+    <None Remove="Common\Security\Roles\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Issuer\" />
@@ -43,6 +46,9 @@
     <Folder Include="Common\Security\Users\" />
     <Folder Include="Common\Security\Request\" />
     <Folder Include="Common\Interfaces\Persistence\" />
+    <Folder Include="Common\Security\Permissions\" />
+    <Folder Include="Common\Security\Policies\" />
+    <Folder Include="Common\Security\Roles\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="2.0.1" />

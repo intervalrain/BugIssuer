@@ -18,7 +18,7 @@ public class ListMyIssuesQueryHandler : IRequestHandler<ListMyIssuesQuery, Error
 
     public async Task<ErrorOr<List<Issue>>> Handle(ListMyIssuesQuery request, CancellationToken cancellationToken)
     {
-        List<Issue> issues = issues = await _issueRepository.ListIssuesByAuthorIdAsync(request.AuthorId, cancellationToken);
+        List<Issue> issues = await _issueRepository.ListIssuesByAuthorIdAsync(request.AuthorId, cancellationToken);
 
         if (issues is null)
         {

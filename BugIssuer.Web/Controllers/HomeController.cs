@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using MediatR;
 
 using BugIssuer.Application.Common.Interfaces;
-using BugIssuer.Web.Models;
-using System.Diagnostics;
-
 namespace BugIssuer.Web.Controllers;
 
 [Authorize]

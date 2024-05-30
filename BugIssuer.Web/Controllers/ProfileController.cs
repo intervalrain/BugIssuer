@@ -1,6 +1,7 @@
 ﻿using BugIssuer.Application.Common.Interfaces;
+using BugIssuer.Application.Common.Security.Users;
 using BugIssuer.Application.Issuer.Queries.ListMyIssues;
-using BugIssuer.Web.Extensions;
+using BugIssuer.Domain;
 using BugIssuer.Web.Models;
 
 using MediatR;
@@ -21,20 +22,16 @@ public class ProfileController : ApiController
     {
         var query = new ListMyIssuesQuery(CurrentUser.UserId, sortOrder, filterStatus);
 
-        ViewData = StatusModeling.UpdateStatus(ViewData, sortOrder, filterStatus);
-
         var result = await Mediator.Send(query);
 
-        if (result.IsError)
-        {
-            return Problem(result.Errors);
-        }
+        return result.Match(
+            issues => View(ToViewModel(issues, CurrentUser)),
+            Problem);
+    }
 
-        var issues = result.Value;
-
-        var model = new ProfileViewModel(issues, CurrentUser);
-
-        return View(model);
+    private ProfileViewModel ToViewModel(List<Issue> issues, CurrentUser currentUser)
+    {
+        return new ProfileViewModel(issues, currentUser);
     }
 }
 

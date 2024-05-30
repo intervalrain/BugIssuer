@@ -16,21 +16,27 @@ public class InMemoryIssueRepository : IIssueRepository
     {
         var issues = new List<Issue>
         {
-            Issue.Create("test1", "Raw Data", "00012415", "Yao", "test1", 1, _dateTimeProvider.Now),
-            Issue.Create("test2", "Query UI", "00012415", "Yao", "test2", 2, _dateTimeProvider.Now),
-            Issue.Create("test3", "Wafer Map", "00012415", "Yao", "test3", 3, _dateTimeProvider.Now),
-            Issue.Create("test4", "Contour Plot", "00012415", "Yao", "test4", 4, _dateTimeProvider.Now),
-            Issue.Create("test5", "Raw Data", "00012415", "Yao", "test5", 5, _dateTimeProvider.Now),
-            Issue.Create("test6", "Raw Data", "00058163", "Mark", "test6", 3, _dateTimeProvider.Now),
-            Issue.Create("test7", "Raw Data", "00058163", "Mark", "test7", 3, _dateTimeProvider.Now)
+            Issue.Create("test1", "Raw Data", "00012415", "Bin Yao", "test1", 1, _dateTimeProvider.Now),
+            Issue.Create("test2", "Query UI", "00012415", "Bin Yao", "test2", 2, _dateTimeProvider.Now),
+            Issue.Create("test3", "Wafer Map", "00012415", "Bin Yao", "test3", 3, _dateTimeProvider.Now),
+            Issue.Create("test4", "Contour Plot", "00012415", "Bin Yao", "test4", 4, _dateTimeProvider.Now),
+            Issue.Create("test5", "Raw Data", "00012415", "Bin Yao", "test5", 5, _dateTimeProvider.Now),
+            Issue.Create("test6", "Raw Data", "00058163", "Mark QH Chen", "test6", 3, _dateTimeProvider.Now),
+            Issue.Create("test7", "Raw Data", "00058163", "Mark QH Chen", "test7", 3, _dateTimeProvider.Now),
+            Issue.Create("test8", "Raw Data", "00053997", "Rain Hu", "test8", 3, _dateTimeProvider.Now),
+            Issue.Create("test9", "Raw Data", "00053997", "Rain Hu", "test9", 3, _dateTimeProvider.Now),
+            Issue.Create("test10", "Raw Data", "00053997", "Rain Hu", "test10", 3, _dateTimeProvider.Now)
         };
-        await AddIssueAsync(issues[0], CancellationToken.None);
-        await AddIssueAsync(issues[1], CancellationToken.None);
-        await AddIssueAsync(issues[2], CancellationToken.None);
-        await AddIssueAsync(issues[3], CancellationToken.None);
-        await AddIssueAsync(issues[4], CancellationToken.None);
-        await AddIssueAsync(issues[5], CancellationToken.None);
-        await AddIssueAsync(issues[6], CancellationToken.None);
+        await AddIssueAsync(issues[0], default);
+        await AddIssueAsync(issues[1], default);
+        await AddIssueAsync(issues[2], default);
+        await AddIssueAsync(issues[3], default);
+        await AddIssueAsync(issues[4], default);
+        await AddIssueAsync(issues[5], default);
+        await AddIssueAsync(issues[6], default);
+        await AddIssueAsync(issues[7], default);
+        await AddIssueAsync(issues[8], default);
+        await AddIssueAsync(issues[9], default);
 
         issues[0].AddComment("00053997", "Rain Hu", "Hello", DateTime.Now);
         issues[0].AddComment("00053997", "Rain Hu", "Yao sir, Can you describe the issue in detail?", DateTime.Now);

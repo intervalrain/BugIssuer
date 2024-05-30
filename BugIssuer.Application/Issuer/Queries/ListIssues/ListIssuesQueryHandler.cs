@@ -42,11 +42,10 @@ public class ListIssuesQueryHandler : IRequestHandler<ListIssuesQuery, ErrorOr<L
             return Error.Unexpected(description: "There are some unexpected errors happened. Please contact admin.");
         }
 
+        issues = request.IsAdmin ? issues : issues.Where(issue => issue.Status != Status.Deleted).ToList();
         Sort(ref issues, request.SortOrder);
 
-        return request.IsAdmin
-            ? issues
-            : issues.Where(issue => issue.Status != Status.Deleted).ToList();
+        return issues;
     }
 
     private void Sort(ref List<Issue> issues, string sortOrder)

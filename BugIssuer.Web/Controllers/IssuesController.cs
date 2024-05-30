@@ -7,7 +7,6 @@ using BugIssuer.Application.Issuer.Queries.GetIssue;
 using BugIssuer.Application.Issuer.Queries.ListIssues;
 using BugIssuer.Application.Issuer.Queries.SearchIssues;
 using BugIssuer.Domain;
-using BugIssuer.Web.Extensions;
 using BugIssuer.Web.Models;
 
 using MediatR;
@@ -28,18 +27,11 @@ public class IssuesController : ApiController
     {
         var query = new ListIssuesQuery(sortOrder, filterStatus, CurrentUser.IsAdmin());
 
-        ViewData = StatusModeling.UpdateStatus(ViewData, sortOrder, filterStatus);
-
         var result = await Mediator.Send(query);
 
-        if (result.IsError)
-        {
-            return Problem(result.Errors);
-        }
-
-        var issues = result.Value;
-
-        return View(issues);
+        return result.Match(
+            issues => View(ToViewModel(CurrentUser.IsAdmin(),  issues, sortOrder, filterStatus)),
+            Problem);
     }
 
     [HttpGet("Issue/{id:int}")]
@@ -264,5 +256,16 @@ public class IssuesController : ApiController
 
         var fileUrl = Url.Content("~/uploads/" + fileName);
         return Json(new { success = true, url = fileUrl });
+    }
+
+    private IssuesViewModel ToViewModel(bool isAdmin, IEnumerable<Issue> issues, string sortOrder, string filterStatus)
+    {
+        return new IssuesViewModel
+        {
+            IsAdmin = isAdmin,
+            Issues = issues,
+            SortOrder = sortOrder,
+            FilterStatus = filterStatus
+        };
     }
 }

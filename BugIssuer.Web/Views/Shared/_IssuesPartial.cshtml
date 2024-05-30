@@ -1,9 +1,8 @@
 ﻿@using BugIssuer.Web.Extensions;
-@using BugIssuer.Domain;
-@model IEnumerable<Issue>
+@model IssuesViewModel
 @{
-    var currentSort = Convert.ToString(ViewData["CurrentSort"]);
-    var currentFilter = Convert.ToString(ViewData["CurrentFilter"]);
+    var currentSort = Model.SortOrder;
+    var currentFilter = Model.FilterStatus;
     var btnAll = string.IsNullOrEmpty(currentFilter) || currentFilter == "All" ? "btn-primary" : "btn-light";
     var btnOpen = currentFilter == "Open" ? "btn-primary" : "btn-light";
     var btnOngoing = currentFilter == "Ongoing" ? "btn-primary" : "btn-light";
@@ -21,23 +20,23 @@
     <table class="table table-hover table-striped">
         <thead>
             <tr>
-                <th><a href="?sortOrder=@ViewData["IdSortParm"]&filterStatus=@currentFilter">Issue Id</a></th>
-                <th><a href="?sortOrder=@ViewData["CategorySortParm"]&filterStatus=@currentFilter">Category</a></th>
-                <th><a href="?sortOrder=@ViewData["TitleSortParm"]&filterStatus=@currentFilter">Title</a></th>
-                <th><a href="?sortOrder=@ViewData["AuthorSortParm"]&filterStatus=@currentFilter">Author</a></th>
-                <th><a href="?sortOrder=@ViewData["DateTimeSortParm"]&filterStatus=@currentFilter">DateTime</a></th>
-                <th><a href="?sortOrder=@ViewData["LastUpdateSortParm"]&filterStatus=@currentFilter">Last Update</a></th>
-                <th><a href="?sortOrder=@ViewData["CommentsSortParm"]&filterStatus=@currentFilter">Comments</a></th>
-                <th><a href="?sortOrder=@ViewData["AssigneeSortParm"]&filterStatus=@currentFilter">Assignee</a></th>
-                <th><a href="?sortOrder=@ViewData["UrgencySortParm"]&filterStatus=@currentFilter">Urgency</a></th>
-                <th><a href="?sortOrder=@ViewData["StatusSortParm"]&filterStatus=@currentFilter">Status</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "IssuedId" ? "id_desc" : "IssuedId")&filterStatus=@currentFilter">Issue Id</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "Category" ? "category_desc" : "Category")&filterStatus=@currentFilter">Category</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "Title" ? "title_desc" : "Title")&filterStatus=@currentFilter">Title</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "Author" ? "author_desc" : "Author")&filterStatus=@currentFilter">Author</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "DateTime" ? "datetime_desc" : "DateTime")&filterStatus=@currentFilter">DateTime</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "LastUpdate" ? "lastupdate_desc" : "LastUpdate")&filterStatus=@currentFilter">Last Update</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "Comments" ? "comments_desc" : "Comments")&filterStatus=@currentFilter">Comments</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "Assignee" ? "assignee_desc" : "Assignee")&filterStatus=@currentFilter">Assignee</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "Urgency" ? "urgency_desc" : "Urgency")&filterStatus=@currentFilter">Urgency</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "Status" ? "status_desc" : "Status")&filterStatus=@currentFilter">Status</a></th>
             </tr>
         </thead>
         <tbody>
             <div id="issue-list-container">
-                @foreach (var issue in Model)
+                @foreach (var issue in Model.Issues)
                 {
-                <tr class="clickable-row" data-href="/Issues/Issue/@issue.IssueId">
+                <tr class="clickable-row" data-issue-id="@issue.IssueId">
                     <td>@issue.IssueId</td>
                     <td>@issue.Category</td>
                     <td>@issue.Title</td>
@@ -60,7 +59,8 @@
         var rows = document.querySelectorAll(".clickable-row");
         rows.forEach(function (row) {
             row.addEventListener("click", function () {
-                window.location = row.getAttribute("data-href");
+                var issueId = this.getAttribute('data-issue-id');
+                window.location.href = '@Url.Action("Issue", "Issues")/' + issueId
             });
         });
     });
