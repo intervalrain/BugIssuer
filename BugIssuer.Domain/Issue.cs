@@ -19,6 +19,7 @@ public class Issue : Entity
 	public DateTime LastUpdate { get; private set; } 
 	public string Assignee { get; private set; }
 	public Status Status { get; private set; }
+	public Label Label { get; private set; } 
 	public List<Comment> Comments { get; }
 
 	public DateOnly Date => DateOnly.FromDateTime(DateTime);
@@ -41,6 +42,7 @@ public class Issue : Entity
 		LastUpdate = dateTime;
 		Assignee = string.Empty;
 		Status = Status.Open;
+		Label = Label.None;
 		Comments = new List<Comment>();
 	}
 
@@ -51,17 +53,17 @@ public class Issue : Entity
 		return new Issue(++_issueCount, title, category, authorId, author, description, urgency, dateTime);
 	}
 
-	public ErrorOr<Success> Remove()
+	public ErrorOr<Success> Delete()
 	{
 
         if (Status == Status.Deleted)
         {
-            return Error.Conflict(description: "The issue has already been deleted.");
+            return Error.NotFound(description: "The issue has already been deleted.");
         }
 
-		if (Status != Status.Open)
+		if (Status == Status.Closed)
 		{
-			return Error.Forbidden(description: "The issue has already been accepted.");
+			return Error.Unauthorized(description: "The issue has already been closed.");
 		}
 
 		Status = Status.Deleted;
@@ -75,12 +77,12 @@ public class Issue : Entity
     {
         if (Status == Status.Deleted)
         {
-            return Error.Conflict(description: "The issue has already been deleted.");
+            return Error.NotFound(description: "The issue has already been deleted.");
         }
 
-        if (Status != Status.Open)
+        if (Status == Status.Closed)
         {
-            return Error.Forbidden(description: "The issue has already been accepted.");
+            return Error.Unauthorized(description: "The issue has already been closed.");
         }
 
 		Title = title;
@@ -100,7 +102,8 @@ public class Issue : Entity
 		{
 			return Error.NotFound(description: "The issue has already been deleted.");
 		}
-		var now = dateTime;
+
+        var now = dateTime;
 		Comments.Add(new Comment(Comments.Count + 1, IssueId, authorId, author, content, now));
 		LastUpdate = dateTime;
 
@@ -109,9 +112,9 @@ public class Issue : Entity
 
 	public ErrorOr<Success> Assign(string assignee)
 	{
-        if (Status != Status.Open && Status != Status.Ongoing)
+        if (Status == Status.Deleted)
 		{
-            return Error.Conflict("Please reopen the issue before accept the issue.");
+            return Error.NotFound("The issue has already been deleted");
         }
 		Status = Status.Ongoing;
 		Assignee = assignee;
@@ -121,11 +124,11 @@ public class Issue : Entity
 
 	public ErrorOr<Success> Reopen()
 	{
-		if (Status != Status.Closed)
+		if (Status == Status.Open || Status == Status.Ongoing)
 		{
-			return Error.Conflict($"{Status} cannot be reopen.");
+			return Error.Conflict($"The issue has already been open.");
 		}
-		
+		 
 		Status = string.IsNullOrEmpty(Assignee) ? Status.Open : Status.Ongoing;
 
 		return Result.Success;
@@ -133,8 +136,36 @@ public class Issue : Entity
 
 	public ErrorOr<Success> Close()
 	{
-		Status = Status.Closed;
+        if (Status == Status.Deleted)
+        {
+            return Error.NotFound(description: "The issue has already been deleted.");
+        }
+
+        if (Status == Status.Closed)
+        {
+            return Error.Conflict(description: "The issue has already been closed.");
+        }
+
+        Status = Status.Closed;
 
 		return Result.Success;
 	}
+
+    public ErrorOr<Success> Unassign()
+    {
+        if (Status == Status.Deleted)
+        {
+            return Error.NotFound(description: "The issue has already been deleted.");
+        }
+
+        if (Status == Status.Closed)
+        {
+            return Error.Unauthorized(description: "The issue has already been closed.");
+        }
+
+		Status = Status.Open;
+		Assignee = string.Empty;
+
+		return Result.Success;
+    }
 }

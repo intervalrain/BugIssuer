@@ -32,7 +32,7 @@ public class RemoveIssueCommandHandler : IRequestHandler<RemoveIssueCommand, Err
             return Error.Forbidden(description: "You are not allowed to delete this issue.");
         }
 
-        var result = issue.Remove();
+        var result = issue.Delete();
 
         if (result.IsError)
         {

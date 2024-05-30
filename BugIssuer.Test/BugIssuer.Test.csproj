@@ -27,12 +27,18 @@
     <None Remove="ApplicationUnitTests\" />
     <None Remove="Common\" />
     <None Remove="SubcutaneousTests\Common\WebAppFactory.csEmptyClass" />
+    <None Remove="IntegrationTests\Common\" />
+    <None Remove="IntegrationTests\Common\WebApplicationFactory\" />
+    <None Remove="IntegrationTests\Contollers\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IntegrationTests\" />
     <Folder Include="DomainUnitTests\" />
     <Folder Include="ApplicationUnitTests\" />
     <Folder Include="Common\" />
+    <Folder Include="IntegrationTests\Common\" />
+    <Folder Include="IntegrationTests\Common\WebApplicationFactory\" />
+    <Folder Include="IntegrationTests\Contollers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BugIssuer.Application\BugIssuer.Application.csproj" />
