@@ -30,33 +30,20 @@ public class IssuesController : ApiController
         var result = await Mediator.Send(query);
 
         return result.Match(
-            issues => View(ToViewModel(CurrentUser.IsAdmin(),  issues, sortOrder, filterStatus)),
+            issues => View(ToViewModel(CurrentUser.IsAdmin(), issues, sortOrder, filterStatus)),
             Problem);
     }
 
     [HttpGet("Issue/{id:int}")]
-    public IActionResult Issue(int id)
+    public async Task<IActionResult> Issue(int id)
     {
-        var applicant = CurrentUser.UserId;
+        var query = new GetIssueQuery(CurrentUser.UserId, id);
 
-        var query = new GetIssueQuery(applicant, id);
+        var result = await Mediator.Send(query);
 
-        var result = Mediator.Send(query).GetAwaiter().GetResult();
-
-        if (result.IsError)
-        {
-            return Problem(result.Errors);
-        }
-        var issue = result.Value;
-
-        var model = new IssueViewModel
-        {
-            Issue = issue,
-            IsAdmin = CurrentUser.IsAdmin(),
-            IsAuthor = issue.AuthorId == applicant
-        };
-
-        return View(model);
+        return result.Match(
+            issue => View(ToViewModel(CurrentUser.IsAdmin(), issue, CurrentUser.UserId)),
+            Problem);
     }
 
     [HttpGet("NewIssue")]
@@ -187,36 +174,15 @@ public class IssuesController : ApiController
     [HttpPost("NewComment")]
     public async Task<IActionResult> NewComment(NewCommentViewModel model)
     {
-        try
-        {
-            if (ModelState.IsValid)
-            {
-                var command = new NewCommentCommand(
-                    model.IssueId,
-                    CurrentUser.UserId,
-                    CurrentUser.UserName,
-                    model.CommentContent
-                    );
+        var command = new NewCommentCommand(model.IssueId, CurrentUser.UserId, CurrentUser.UserName, model.CommentContent);
 
-                var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command);
 
-                if (result.IsError)
-                {
-                    return Problem(result.Errors);
-                }
+        var redirectUrl = Url.Action(nameof(Issue), new { id = model.IssueId });
 
-                var comment = result.Value;
-                var redirectUrl = Url.Action(nameof(Issue), new { id = model.IssueId });
-
-                return Ok(new { redirectUrl });
-            }
-            return BadRequest(ModelState);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An error occurred while posting issues.");
-            return StatusCode(500, "Internal server error");
-        }
+        return result.Match(
+            _ => Ok(new { redirectUrl }),
+            Problem);
     }
 
     [HttpGet("SearchIssues")]
@@ -266,6 +232,16 @@ public class IssuesController : ApiController
             Issues = issues,
             SortOrder = sortOrder,
             FilterStatus = filterStatus
+        };
+    }
+
+    private IssueViewModel ToViewModel(bool isAdmin, Issue issue, string userId)
+    {
+        return new IssueViewModel
+        {
+            IsAdmin = isAdmin,
+            Issue = issue,
+            IsAuthor = issue.AuthorId == userId
         };
     }
 }
