@@ -48,5 +48,9 @@
         </div>
     </div>
 
-    @Html.Partial("_IssuesPartial", Model.Issues)
+    @Html.Partial("_IssuesPartial", new IssuesViewModel
+    {
+        IsAdmin = Model.CurrentUser.IsAdmin(),
+        Issues = Model.Issues
+    })
 </div>

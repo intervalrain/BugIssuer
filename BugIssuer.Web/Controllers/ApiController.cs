@@ -1,9 +1,4 @@
-﻿using BugIssuer.Application.Common.Interfaces;
-using BugIssuer.Application.Common.Security.Users;
-
-using ErrorOr;
-
-using MediatR;
+﻿using ErrorOr;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,27 +11,6 @@ namespace BugIssuer.Web.Controllers;
 [Route("[Controller]")]
 public class ApiController : Controller
 {
-    private readonly ILogger<Controller> _logger;
-    private readonly IMediator _mediator;
-    private readonly IWebHostEnvironment _environment;
-    private readonly CurrentUser _currentUser;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
-    public ILogger<Controller> Logger => _logger;
-    public IMediator Mediator => _mediator;
-    public IWebHostEnvironment Environment => _environment;
-    public CurrentUser CurrentUser => _currentUser;
-    public IDateTimeProvider DateTimeProvider => _dateTimeProvider;
-
-    public ApiController(ILogger<Controller> logger, IMediator mediator, IWebHostEnvironment environment, ICurrentUserProvider userProvider, IDateTimeProvider dateTimeProvider)
-    {
-        _logger = logger;
-        _mediator = mediator;
-        _environment = environment;
-        _currentUser = userProvider.CurrentUser;
-        _dateTimeProvider = dateTimeProvider;
-    }
-
     protected ActionResult Problem(List<Error> errors)
     {
         if (errors.Count is 0)

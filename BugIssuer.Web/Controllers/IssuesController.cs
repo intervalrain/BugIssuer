@@ -1,11 +1,11 @@
 ﻿using BugIssuer.Application.Common.Interfaces;
+using BugIssuer.Application.Common.Security.Users;
 using BugIssuer.Application.Issuer.Commands.CreateIssue;
 using BugIssuer.Application.Issuer.Commands.NewComment;
 using BugIssuer.Application.Issuer.Commands.RemoveIssue;
 using BugIssuer.Application.Issuer.Commands.UpdateIssue;
 using BugIssuer.Application.Issuer.Queries.GetIssue;
 using BugIssuer.Application.Issuer.Queries.ListIssues;
-using BugIssuer.Application.Issuer.Queries.SearchIssues;
 using BugIssuer.Domain;
 using BugIssuer.Web.Models;
 
@@ -17,32 +17,49 @@ namespace BugIssuer.Web.Controllers;
 
 public class IssuesController : ApiController
 {
-    public IssuesController(ILogger<Controller> logger, IMediator mediator, IWebHostEnvironment environment, ICurrentUserProvider userProvider, IDateTimeProvider dateTimeProvider)
-        : base(logger, mediator, environment, userProvider, dateTimeProvider)
+    private readonly IMediator _mediator;
+    private readonly IWebHostEnvironment _environment;
+    private readonly CurrentUser _currentUser;
+    private readonly IDateTimeProvider _dateTimeProvider;
+
+    public IssuesController(IMediator mediator, IWebHostEnvironment environment, ICurrentUserProvider userProvider, IDateTimeProvider dateTimeProvider)
     {
+        _mediator = mediator;
+        _environment = environment;
+        _currentUser = userProvider.CurrentUser;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     [HttpGet]
     public async Task<IActionResult> Issues(string sortOrder = null, string filterStatus = null)
     {
-        var query = new ListIssuesQuery(sortOrder, filterStatus, CurrentUser.IsAdmin());
-
-        var result = await Mediator.Send(query);
+        var query = new ListIssuesQuery(_currentUser.UserId, sortOrder, filterStatus, _currentUser.IsAdmin());
+        var result = await _mediator.Send(query);
 
         return result.Match(
-            issues => View(ToViewModel(CurrentUser.IsAdmin(), issues, sortOrder, filterStatus)),
+            issues => View(new IssuesViewModel
+            {
+                IsAdmin = _currentUser.IsAdmin(),
+                Issues = issues,
+                SortOrder = sortOrder,
+                FilterStatus = filterStatus
+            }),
             Problem);
     }
 
     [HttpGet("Issue/{id:int}")]
     public async Task<IActionResult> Issue(int id)
     {
-        var query = new GetIssueQuery(CurrentUser.UserId, id);
-
-        var result = await Mediator.Send(query);
+        var query = new GetIssueQuery(_currentUser.UserId, id);
+        var result = await _mediator.Send(query);
 
         return result.Match(
-            issue => View(ToViewModel(CurrentUser.IsAdmin(), issue, CurrentUser.UserId)),
+            issue => View(new IssueViewModel
+            {
+                IsAdmin = _currentUser.IsAdmin(),
+                Issue = issue,
+                IsAuthor = _currentUser.UserId == issue.AuthorId
+            }),
             Problem);
     }
 
@@ -53,33 +70,15 @@ public class IssuesController : ApiController
     }
 
     [HttpPost("NewIssue")]
-    public async Task<IActionResult> NewIssue([FromBody] NewIssueViewModel model)
+    public async Task<IActionResult> NewIssue([FromForm]NewIssueViewModel model)
     {
-        try
-        {
-            if (ModelState.IsValid)
-            {
-                var command = new CreateIssueCommand(model.Title, model.Description, model.Category, model.Urgency, CurrentUser.UserId, CurrentUser.UserName, DateTimeProvider.Now);
+        var command = new CreateIssueCommand(model.Title, model.Description, model.Category, model.Urgency, _currentUser.UserId, _dateTimeProvider.Now);
+        var result = await _mediator.Send(command);
 
-                var result = await Mediator.Send(command);
-
-                if (result.IsError)
-                {
-                    return Problem(result.Errors);
-                }
-
-                var issue = result.Value;
-                var redirectUrl = Url.Action(nameof(Issues));
-
-                return Ok(new { redirectUrl }); 
-            }
-            return BadRequest(ModelState);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An error occurred while posting issues.");
-            return StatusCode(500, "Internal server error");
-        }
+        return result.Match(
+            issue => RedirectToAction(nameof(Issue), nameof(Issues), new { id = issue.IssueId }),
+            Problem);
+        
     }
 
     public IActionResult IssuesPartial(IEnumerable<Issue> issues)
@@ -88,118 +87,55 @@ public class IssuesController : ApiController
     }
 
 
-
-    [HttpGet("EditIssue/{id:int}")]
-    public async Task<IActionResult> EditIssue(int id)
+    [HttpGet("EditIssue/{issueId:int}")]
+    public async Task<IActionResult> EditIssue(int issueId)
     {
-        var query = new GetIssueQuery(CurrentUser.UserId, id);
+        var query = new GetIssueQuery(_currentUser.UserId, issueId);
+        var result = await _mediator.Send(query);
 
-        var result = await Mediator.Send(query);
-
-        if (result.IsError)
-        {
-            return Problem();
-        }
-
-        var issue = result.Value;
-        var model = new EditIssueViewModel
-        {
-            IssueId = issue.IssueId,
-            Title = issue.Title,
-            Category = issue.Category,
-            Urgency = issue.Urgency,
-            Description = issue.Description
-        };
-
-        return View(model);
+        return result.Match(
+            issue => View(new EditIssueViewModel
+            {
+                IssueId = issue.IssueId,
+                Title = issue.Title,
+                Category = issue.Category,
+                Urgency = issue.Urgency,
+                Description = issue.Description
+            }),
+            Problem);
     }
 
     [HttpPost("EditIssue")]
     public async Task<IActionResult> EditIssue(EditIssueViewModel model)
     {
-        if (ModelState.IsValid)
-        {
-            var query = new GetIssueQuery(CurrentUser.UserId, model.IssueId);
+        var command = new UpdateIssueCommand(model.IssueId, _currentUser.UserId, model.Title, model.Description, model.Category, model.Urgency);
+        var result = await _mediator.Send(command);
 
-            var result = await Mediator.Send(query);
-
-            if (result.IsError)
-            {
-                return Problem(result.Errors);
-            }
-            var issue = result.Value;
-
-            var command = new UpdateIssueCommand(
-                issue.IssueId,
-                issue.AuthorId,
-                model.Title,
-                model.Description,
-                model.Category,
-                model.Urgency
-                );
-            var response = await Mediator.Send(command);
-
-            if (response.IsError)
-            {
-                return Problem(response.Errors);
-            }
-
-            return RedirectToAction(nameof(Issue), new { id = model.IssueId });
-        }
-        return View(model);
+        return result.Match(
+            _ => RedirectToAction(nameof(Issue), nameof(Issues), new { id = model.IssueId }),
+            Problem);
     }
 
     [HttpPost("DeleteIssue")]
     public async Task<IActionResult> DeleteIssue([FromBody] DeleteIssueRequest request)
     {
-        try
-        {
-            var command = new RemoveIssueCommand(CurrentUser.UserId, request.IssueId);
+        var command = new RemoveIssueCommand(_currentUser.UserId, request.IssueId);
+        var result = await _mediator.Send(command);
 
-            var result = await Mediator.Send(command);
-
-            if (result.IsError)
-            {
-                return Problem(detail: result.FirstError.Description);
-            }
-            return RedirectToAction(nameof(Issues));
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An error occurred while deleting issues.");
-            return StatusCode(500, "Internal server error");
-        }
+        return result.Match(
+            _ => RedirectToAction(nameof(Issues), nameof(Issues)),
+                Problem);
     }
 
     [HttpPost("NewComment")]
     public async Task<IActionResult> NewComment(NewCommentViewModel model)
     {
-        var command = new NewCommentCommand(model.IssueId, CurrentUser.UserId, CurrentUser.UserName, model.CommentContent);
-
-        var result = await Mediator.Send(command);
-
-        var redirectUrl = Url.Action(nameof(Issue), new { id = model.IssueId });
+        var command = new NewCommentCommand(model.IssueId, _currentUser.UserId, model.CommentContent);
+        var result = await _mediator.Send(command);
 
         return result.Match(
-            _ => Ok(new { redirectUrl }),
+            _ => RedirectToAction(nameof(Issue), new { id = model.IssueId }),
             Problem);
-    }
-
-    [HttpGet("SearchIssues")]
-    public async Task<IActionResult> SearchIssues(string searchText, CancellationToken token)
-    {
-        try
-        {
-            var query = new SearchIssuesQuery(searchText);
-
-            var issues = await Mediator.Send(query, token);
-            return PartialView("_IssueListPartial", issues.Value);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An error occurred while searching issues.");
-            return StatusCode(500, "Internal server error");
-        }
     }
 
     [HttpPost]
@@ -208,7 +144,7 @@ public class IssuesController : ApiController
         if (file == null || file.Length == 0)
             return Json(new { success = false, message = "No file selected" });
 
-        var uploadsFolder = Path.Combine(Environment.WebRootPath, "uploads");
+        var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
         if (!Directory.Exists(uploadsFolder))
             Directory.CreateDirectory(uploadsFolder);
 
@@ -222,26 +158,5 @@ public class IssuesController : ApiController
 
         var fileUrl = Url.Content("~/uploads/" + fileName);
         return Json(new { success = true, url = fileUrl });
-    }
-
-    private IssuesViewModel ToViewModel(bool isAdmin, IEnumerable<Issue> issues, string sortOrder, string filterStatus)
-    {
-        return new IssuesViewModel
-        {
-            IsAdmin = isAdmin,
-            Issues = issues,
-            SortOrder = sortOrder,
-            FilterStatus = filterStatus
-        };
-    }
-
-    private IssueViewModel ToViewModel(bool isAdmin, Issue issue, string userId)
-    {
-        return new IssueViewModel
-        {
-            IsAdmin = isAdmin,
-            Issue = issue,
-            IsAuthor = issue.AuthorId == userId
-        };
     }
 }

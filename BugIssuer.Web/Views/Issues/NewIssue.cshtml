@@ -9,7 +9,7 @@
         <h2>New Issue</h2>
     </div>
 
-    <form asp-action="NewIssue" method="post">
+    <form id="new-issue-form" asp-action="NewIssue" method="post">
         <div class="card mb-3">
             <div class="card-header">
                 <div class="form-group">
@@ -51,8 +51,7 @@
 <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
-<script>
-    var simplemde = new SimpleMDE({
+<script>var simplemde = new SimpleMDE({
         element: document.getElementById("Description"),
         spellChecker: false,
         status: false,
@@ -89,29 +88,30 @@
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                var cm = simplemde.codemirror;
-                var doc = cm.getDoc();
-                var cursor = doc.getCursor();
-                doc.replaceRange("![Image](" + data.url + ")", cursor);
-            } else {
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var cm = simplemde.codemirror;
+                    var doc = cm.getDoc();
+                    var cursor = doc.getCursor();
+                    doc.replaceRange("![Image](" + data.url + ")", cursor);
+                } else {
+                    alert("Failed to upload image");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 alert("Failed to upload image");
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("Failed to upload image");
-        });
+            });
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("post-button").addEventListener("click", function () {
-            
+        document.getElementById("new-issue-form").addEventListener("summit", function (event) {
+            event.preventDefault();
+
             const title = document.querySelector("#Title").value;
             const category = document.querySelector("#Category").value;
-            const urgency = document.querySelector("input[name='Urgency']:checked").value;
+            const urgency = document.querySelector("#Urgency").value;
             const description = simplemde.value();
 
             const formData = {
@@ -129,8 +129,8 @@
                 body: JSON.stringify(formData)
             })
             .then(response => {
-                if (response.ok) {
-                    return response.json();
+                if (response.redirected) {
+                    window.location.href = response.url;
                 } else {
                     return response.text().then(text => {
                         alert("Failed to post issue: " + text);
@@ -138,14 +138,8 @@
                     });
                 }
             })
-            .then(data => {
-                if (data.redirectUrl) {
-                    window.location.href = data.redirectUrl;
-                }
-            })
             .catch(error => {
                 console.error('Error posting issue', error);
             });
         });
-    });
-</script>
+    });</script>

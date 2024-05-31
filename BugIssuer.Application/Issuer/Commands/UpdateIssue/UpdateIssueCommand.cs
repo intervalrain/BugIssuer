@@ -7,4 +7,4 @@ using MediatR;
 namespace BugIssuer.Application.Issuer.Commands.UpdateIssue;
 
 [Authorize(Permissions = Permission.Issue.Remove, Policies = Policy.SelfOrAdmin)]
-public record UpdateIssueCommand(int IssueId, string AuthorId, string Title, string Description, string Category, int Urgency) : IRequest<ErrorOr<Success>>;
+public record UpdateIssueCommand(int IssueId, string UserId, string Title, string Description, string Category, int Urgency) : IAuthorizableRequest<ErrorOr<Success>>;

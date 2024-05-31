@@ -6,6 +6,8 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
+using BugIssuer.Application.Common.Security.Permissions;
+
 namespace BugIssuer.Web;
 
 public class FakeAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
@@ -35,7 +37,17 @@ public class FakeAuthenticationHandler : AuthenticationHandler<AuthenticationSch
 
         var roles = isAdmin ? new string[] { "user", "admin" } : new string[] { "user" };
 
-        var permissions = new string[] { };
+        var permissions = new string[]
+        {
+            Permission.Issue.Create,
+            Permission.Issue.Get,
+            Permission.Issue.List,
+            Permission.Issue.ListMy,
+            Permission.Issue.Comment,
+            Permission.Issue.Update,
+            Permission.Issue.Remove,
+            Permission.Issue.Search
+        };
 
         var claims = new List<Claim>
         {

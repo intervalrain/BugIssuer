@@ -19,7 +19,7 @@ public class RemoveIssueCommandHandler : IRequestHandler<RemoveIssueCommand, Err
 
     public async Task<ErrorOr<Success>> Handle(RemoveIssueCommand request, CancellationToken cancellationToken)
     {
-        var applicant = request.Applicant;
+        var applicant = request.UserId;
         var issue = await _issueRepository.GetIssueByIdAsync(request.IssueId, cancellationToken);
 
         if (issue is null)

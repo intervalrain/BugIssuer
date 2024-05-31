@@ -14,14 +14,10 @@
         <div>
             @if (Model.IsAuthor || Model.IsAdmin)
             {
-                <a href="@Url.Action("EditIssue", "Issues", new { id = Model.Issue.IssueId })" class="btn btn-outline-primary">Edit</a>
+                <a href="@Url.Action("EditIssue", new { issueId = Model.Issue.IssueId })" class="btn btn-outline-primary">Edit</a>
             }
-            
-            @if (Model.Issue.Status == Status.Deleted)
-            {
 
-            }
-            else
+            @if (Model.Issue.Status != Status.Deleted)
             {
                 <button class="btn btn-danger" id="delete-button">Delete</button>
             }
@@ -68,7 +64,7 @@
             </div>
         }
         <div class="card-footer">
-            <form asp-action="NewComment" method="post">
+            <form id="new-comment-form" asp-action="NewComment" method="post">
                 <div class="form-group">
                     <textarea id="CommentContent" name="CommentContent" class="form-control" placeholder="Enter Comment"></textarea>
                 </div>
@@ -84,62 +80,61 @@
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
-<script>
-    var simplemde = new SimpleMDE({
-        element: document.getElementById("CommentContent"),
-        spellChecker: false,
-        status: false,
-    });
-
-    simplemde.codemirror.on("drop", function (editor, event) {
-        event.preventDefault();
-        var files = event.dataTransfer.files;
-        handleFiles(files);
-    });
-
-    simplemde.codemirror.on("paste", function (editor, event) {
-        var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-        for (var index in items) {
-            var item = items[index];
-            if (item.kind === 'file') {
-                var blob = item.getAsFile();
-                handleFiles([blob]);
-            }
-        }
-    });
-
-    function handleFiles(files) {
-        for (var i = 0; i < files.length; i++) {
-            uploadFile(files[i]);
-        }
-    }
-
-    function uploadFile(file) {
-        var formData = new FormData();
-        formData.append("file", file);
-
-        fetch('/Issues/UploadImage', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                var cm = simplemde.codemirror;
-                var doc = cm.getDoc();
-                var cursor = doc.getCursor();
-                doc.replaceRange("![Image](" + data.url + ")", cursor);
-            } else {
-                alert("Failed to upload image");
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("Failed to upload image");
+<script>document.addEventListener("DOMContentLoaded", function () {
+        var simplemde = new SimpleMDE({
+            element: document.getElementById("CommentContent"),
+            spellChecker: false,
+            status: false,
         });
-    }
 
-    document.addEventListener("DOMContentLoaded", function () {
+        simplemde.codemirror.on("drop", function (editor, event) {
+            event.preventDefault();
+            var files = event.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        simplemde.codemirror.on("paste", function (editor, event) {
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (var index in items) {
+                var item = items[index];
+                if (item.kind === 'file') {
+                    var blob = item.getAsFile();
+                    handleFiles([blob]);
+                }
+            }
+        });
+
+        function handleFiles(files) {
+            for (var i = 0; i < files.length; i++) {
+                uploadFile(files[i]);
+            }
+        }
+
+        function uploadFile(file) {
+            var formData = new FormData();
+            formData.append("file", file);
+
+            fetch('/Issues/UploadImage', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        var cm = simplemde.codemirror;
+                        var doc = cm.getDoc();
+                        var cursor = doc.getCursor();
+                        doc.replaceRange("![Image](" + data.url + ")", cursor);
+                    } else {
+                        alert("Failed to upload image");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Failed to upload image");
+                });
+        }
+
         document.getElementById("delete-button").addEventListener("click", function () {
             if (confirm("Are you sure you want to delete this issue?")) {
                 var id = Number(document.getElementById("IssueId").value);
@@ -151,21 +146,22 @@
                     },
                     body: JSON.stringify({ IssueId: id })
                 })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = "/Issues";
-                    } else {
-                        alert("Failed to delete issue");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting issue', error);
-                });
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.href = "/Issues";
+                        } else {
+                            alert("Failed to delete issue");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting issue', error);
+                    });
             }
         });
 
+        document.getElementById("new-comment-form").addEventListener("submit", function (event) {
+            event.preventDefault();
 
-        document.getElementById("post-button").addEventListener("click", function () {
             const issueId = document.querySelector("#IssueId").value;
             const content = simplemde.value();
 
@@ -182,8 +178,8 @@
                 body: JSON.stringify(formData)
             })
             .then(response => {
-                if (response.ok) {
-                    return response.json();
+                if (response.redirected) {
+                    window.location.href = response.url;
                 } else {
                     return response.text().then(text => {
                         alert("Failed to post comment: " + text);
@@ -191,14 +187,9 @@
                     });
                 }
             })
-            .then(data => {
-                if (data.redirectUrl) {
-                    window.location.href = data.redirectUrl;
-                }
-            })
             .catch(error => {
                 console.error('Error posting comment', error);
             });
         });
-    });
-</script>
+});
+    </script>

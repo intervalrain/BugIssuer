@@ -34,6 +34,8 @@ public static class DependencyInjection
     {
         services.AddSingleton<ICurrentUserProvider, CurrentUserProvider>();
         services.AddSingleton<IAdminProvider, AdminProvider>();
+        services.AddScoped<IAuthorizationService, AuthorizationService>();
+        services.AddScoped<IPolicyEnforcer, PolicyEnforcer>();
         return services;
     }
 

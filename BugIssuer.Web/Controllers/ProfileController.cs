@@ -12,20 +12,23 @@ namespace BugIssuer.Web.Controllers;
 
 public class ProfileController : ApiController
 {
-    public ProfileController(ILogger<Controller> logger, IMediator mediator, IWebHostEnvironment environment, ICurrentUserProvider userProvider, IDateTimeProvider dateTimeProvider)
-        : base(logger, mediator, environment, userProvider, dateTimeProvider)
+    private readonly IMediator _mediator;
+    private readonly CurrentUser _currentUser;
+
+    public ProfileController(IMediator mediator, ICurrentUserProvider currentUserProvider)
     {
+        _mediator = mediator;
+        _currentUser = currentUserProvider.CurrentUser;
     }
 
     [HttpGet]
     public async Task<IActionResult> Profile(string sortOrder = null, string filterStatus = null)
     {
-        var query = new ListMyIssuesQuery(CurrentUser.UserId, sortOrder, filterStatus);
-
-        var result = await Mediator.Send(query);
+        var query = new ListMyIssuesQuery(_currentUser.UserId, sortOrder, filterStatus);
+        var result = await _mediator.Send(query);
 
         return result.Match(
-            issues => View(ToViewModel(issues, CurrentUser)),
+            issues => View(ToViewModel(issues, _currentUser)),
             Problem);
     }
 

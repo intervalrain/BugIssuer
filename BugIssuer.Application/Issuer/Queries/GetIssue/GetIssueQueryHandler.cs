@@ -28,7 +28,7 @@ public class GetIssueQueryHandler : IRequestHandler<GetIssueQuery, ErrorOr<Issue
             return Error.NotFound(description: "Issue not found.");
         }
 
-        if (issue.Status == Status.Deleted && (request.Applicant != issue.Author && !_adminProvider.IsAdmin(request.Applicant)))
+        if (issue.Status == Status.Deleted && (request.UserId != issue.Author && !_adminProvider.IsAdmin(request.UserId)))
         {
             return Error.NotFound(description: "Issue has been deleted.");
         }

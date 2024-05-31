@@ -11,21 +11,28 @@ namespace BugIssuer.Application.Issuer.Commands.CreateIssue;
 public class CreateIssueCommandHandler : IRequestHandler<CreateIssueCommand, ErrorOr<Issue>>
 {
     private readonly IIssueRepository _issueRepository;
-    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IUserRepository _userRepository;
 
-    public CreateIssueCommandHandler(IIssueRepository issueRepository, IDateTimeProvider dateTimeProvider)
+    public CreateIssueCommandHandler(IIssueRepository issueRepository, IUserRepository userRepository)
     {
         _issueRepository = issueRepository;
-        _dateTimeProvider = dateTimeProvider;
+        _userRepository = userRepository;
     }
 
     public async Task<ErrorOr<Issue>> Handle(CreateIssueCommand request, CancellationToken cancellationToken)
     {
+        var user = await _userRepository.GetUserByIdAsync(request.UserId, cancellationToken);
+
+        if (user is null)
+        {
+            return Error.NotFound(description: "User not found.");
+        }
+
         var issue = Issue.Create(
             request.Title,
             request.Category,
-            request.AuthorId,
-            request.Author,
+            request.UserId,
+            user.UserName,
             request.Description,
             request.Urgency,
             request.DateTime);

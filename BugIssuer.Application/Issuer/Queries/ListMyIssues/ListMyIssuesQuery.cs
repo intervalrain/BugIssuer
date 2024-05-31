@@ -8,4 +8,4 @@ using MediatR;
 namespace BugIssuer.Application.Issuer.Queries.ListMyIssues;
 
 [Authorize(Permissions = Permission.Issue.ListMy, Policies = Policy.SelfOrAdmin)]
-public record ListMyIssuesQuery(string AuthorId, string SortOrder, string FilterStatus) : IRequest<ErrorOr<List<Issue>>>;
+public record ListMyIssuesQuery(string UserId, string SortOrder, string FilterStatus) : IAuthorizableRequest<ErrorOr<List<Issue>>>;

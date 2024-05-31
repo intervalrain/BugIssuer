@@ -11,11 +11,13 @@ namespace BugIssuer.Application.Issuer.Commands.NewComment;
 public class NewCommentCommandHandler : IRequestHandler<NewCommentCommand, ErrorOr<Comment>>
 {
     private readonly IIssueRepository _issueRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
 
-    public NewCommentCommandHandler(IIssueRepository issueRepository, IDateTimeProvider dateTimeProvider)
+    public NewCommentCommandHandler(IIssueRepository issueRepository, IUserRepository userRepository, IDateTimeProvider dateTimeProvider)
     {
         _issueRepository = issueRepository;
+        _userRepository = userRepository;
         _dateTimeProvider = dateTimeProvider;
     }
 
@@ -33,9 +35,16 @@ public class NewCommentCommandHandler : IRequestHandler<NewCommentCommand, Error
             return Error.Conflict(description: "Invalid Operation");
         }
 
+        var user = await _userRepository.GetUserByIdAsync(request.UserId, cancellationToken);
+
+        if (user is null)
+        {
+            return Error.NotFound(description: "User not found");
+        }
+
         var result = issue.AddComment(
-            request.AuthorId,
-            request.Author,
+            request.UserId,
+            user.UserName,
             request.Content,
             _dateTimeProvider.Now
             );

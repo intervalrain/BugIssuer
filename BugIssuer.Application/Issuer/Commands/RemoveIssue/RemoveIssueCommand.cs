@@ -9,4 +9,4 @@ using BugIssuer.Application.Common.Security.Policies;
 namespace BugIssuer.Application.Issuer.Commands.RemoveIssue;
 
 [Authorize(Permissions = Permission.Issue.Remove, Policies = Policy.SelfOrAdmin)]
-public record RemoveIssueCommand(string Applicant, int IssueId) : IRequest<ErrorOr<Success>>;
+public record RemoveIssueCommand(string UserId, int IssueId) : IAuthorizableRequest<ErrorOr<Success>>;

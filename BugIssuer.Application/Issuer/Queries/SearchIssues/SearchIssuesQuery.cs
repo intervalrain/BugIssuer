@@ -7,4 +7,4 @@ using MediatR;
 namespace BugIssuer.Application.Issuer.Queries.SearchIssues;
 
 [Authorize(Permissions = Permission.Issue.Search)]
-public record SearchIssuesQuery(string Text) : IRequest<ErrorOr<List<Issue>>>;
+public record SearchIssuesQuery(string UserId, string Text) : IAuthorizableRequest<ErrorOr<List<Issue>>>;

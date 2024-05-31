@@ -10,17 +10,19 @@ namespace BugIssuer.Application.Issuer.Commands.UpdateIssue
     public class UpdateIssueCommandHandler : IRequestHandler<UpdateIssueCommand, ErrorOr<Success>>
     {
         private readonly IIssueRepository _issueRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public UpdateIssueCommandHandler(IIssueRepository issueRepository, IDateTimeProvider dateTimeProvider)
+        public UpdateIssueCommandHandler(IIssueRepository issueRepository, IUserRepository userRepository, IDateTimeProvider dateTimeProvider)
         {
             _issueRepository = issueRepository;
+            _userRepository = userRepository;
             _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<ErrorOr<Success>> Handle(UpdateIssueCommand request, CancellationToken cancellationToken)
         {
-            var authorId = request.AuthorId;
+            var authorId = request.UserId;
             var issue = await _issueRepository.GetIssueByIdAsync(request.IssueId, cancellationToken);
 
             if (issue is null)

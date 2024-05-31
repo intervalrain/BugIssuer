@@ -14,8 +14,7 @@ public static class IssueCommandFactory
             Description: issue.Description,
             Category: issue.Category,
             Urgency: issue.Urgency,
-            Author: issue.Author,
-            AuthorId: issue.AuthorId,
+            UserId: issue.AuthorId,
             DateTime: issue.DateTime);
     }
 }

@@ -10,7 +10,7 @@ public static class IssueQueryFactory
         string filterStatus = "",
         bool isAdmin = false)
     {
-        return new ListIssuesQuery(sortOrder, filterStatus, isAdmin);
+        return new ListIssuesQuery(CurrentUserFactory.Create().UserId, sortOrder, filterStatus, isAdmin);
     }
 
     public static GetIssueQuery CreateGetIssueQuery(

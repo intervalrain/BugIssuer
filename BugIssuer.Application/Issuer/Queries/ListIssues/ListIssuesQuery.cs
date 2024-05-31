@@ -7,5 +7,5 @@ using MediatR;
 
 namespace BugIssuer.Application.Issuer.Queries.ListIssues;
 
-[Authorize(Permissions = Permission.Issue.List)]
-public record ListIssuesQuery(string SortOrder, string FilterStatus, bool IsAdmin) : IRequest<ErrorOr<List<Issue>>>;
+[Authorize(Permissions = Permission.Issue.List, Policies = Policy.SelfOrAdmin)]
+public record ListIssuesQuery(string UserId, string SortOrder, string FilterStatus, bool IsAdmin) : IAuthorizableRequest<ErrorOr<List<Issue>>>;
