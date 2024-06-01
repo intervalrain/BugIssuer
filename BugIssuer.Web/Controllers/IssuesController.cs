@@ -70,7 +70,7 @@ public class IssuesController : ApiController
     }
 
     [HttpPost("NewIssue")]
-    public async Task<IActionResult> NewIssue([FromForm]NewIssueViewModel model)
+    public async Task<IActionResult> NewIssue(NewIssueViewModel model)
     {
         var command = new CreateIssueCommand(model.Title, model.Description, model.Category, model.Urgency, _currentUser.UserId, _dateTimeProvider.Now);
         var result = await _mediator.Send(command);
@@ -138,7 +138,7 @@ public class IssuesController : ApiController
             Problem);
     }
 
-    [HttpPost]
+    [HttpPost("UploadImage")]
     public async Task<IActionResult> UploadImage(IFormFile file)
     {
         if (file == null || file.Length == 0)

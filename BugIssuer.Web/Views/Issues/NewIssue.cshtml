@@ -51,43 +51,45 @@
 <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
-<script>var simplemde = new SimpleMDE({
-        element: document.getElementById("Description"),
-        spellChecker: false,
-        status: false,
-    });
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var simplemde = new SimpleMDE({
+            element: document.getElementById("Description"),
+            spellChecker: false,
+            status: false,
+        });
 
-    simplemde.codemirror.on("drop", function (editor, event) {
-        event.preventDefault();
-        var files = event.dataTransfer.files;
-        handleFiles(files);
-    });
+        simplemde.codemirror.on("drop", function (editor, event) {
+            event.preventDefault();
+            var files = event.dataTransfer.files;
+            handleFiles(files);
+        });
 
-    simplemde.codemirror.on("paste", function (editor, event) {
-        var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-        for (var index in items) {
-            var item = items[index];
-            if (item.kind === 'file') {
-                var blob = item.getAsFile();
-                handleFiles([blob]);
+        simplemde.codemirror.on("paste", function (editor, event) {
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (var index in items) {
+                var item = items[index];
+                if (item.kind === 'file') {
+                    var blob = item.getAsFile();
+                    handleFiles([blob]);
+                }
+            }
+        });
+
+        function handleFiles(files) {
+            for (var i = 0; i < files.length; i++) {
+                uploadFile(files[i]);
             }
         }
-    });
 
-    function handleFiles(files) {
-        for (var i = 0; i < files.length; i++) {
-            uploadFile(files[i]);
-        }
-    }
+        function uploadFile(file) {
+            var formData = new FormData();
+            formData.append("file", file);
 
-    function uploadFile(file) {
-        var formData = new FormData();
-        formData.append("file", file);
-
-        fetch('/Issues/UploadImage', {
-            method: 'POST',
-            body: formData
-        })
+            fetch('/Issues/UploadImage', {
+                method: 'POST',
+                body: formData
+            })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -103,15 +105,14 @@
                 console.error('Error:', error);
                 alert("Failed to upload image");
             });
-    }
+        }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("new-issue-form").addEventListener("summit", function (event) {
+        document.getElementById("new-issue-form").addEventListener("submit", function (event) {
             event.preventDefault();
 
             const title = document.querySelector("#Title").value;
             const category = document.querySelector("#Category").value;
-            const urgency = document.querySelector("#Urgency").value;
+            const urgency = document.querySelector('input[name="Urgency"]:checked').value;
             const description = simplemde.value();
 
             const formData = {
@@ -142,4 +143,5 @@
                 console.error('Error posting issue', error);
             });
         });
-    });</script>
+    });
+</script>

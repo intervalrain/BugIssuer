@@ -36,7 +36,7 @@
                         <span class="@Badge.StatusToBadge(Model.Issue.Status)">@Model.Issue.Status</span>
                     </div>
                     <br />
-                    <h5>Assignee: @Model.Issue.Assignee</h5>
+                    <strong>Assignee:</strong> @Model.Issue.Assignee
                 </div>
                 <div class="text-muted">
                     <div>@Model.Issue.AuthorId</div>
@@ -83,7 +83,8 @@
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 
-<script>document.addEventListener("DOMContentLoaded", function () {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
         var simplemde = new SimpleMDE({
             element: document.getElementById("CommentContent"),
             spellChecker: false,
@@ -121,21 +122,21 @@
                 method: 'POST',
                 body: formData
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        var cm = simplemde.codemirror;
-                        var doc = cm.getDoc();
-                        var cursor = doc.getCursor();
-                        doc.replaceRange("![Image](" + data.url + ")", cursor);
-                    } else {
-                        alert("Failed to upload image");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var cm = simplemde.codemirror;
+                    var doc = cm.getDoc();
+                    var cursor = doc.getCursor();
+                    doc.replaceRange("![Image](" + data.url + ")", cursor);
+                } else {
                     alert("Failed to upload image");
-                });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Failed to upload image");
+            });
         }
 
         document.getElementById("delete-button").addEventListener("click", function () {
@@ -194,5 +195,5 @@
                 console.error('Error posting comment', error);
             });
         });
-});
-    </script>
+    });
+</script>

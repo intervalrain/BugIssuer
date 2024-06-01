@@ -4,16 +4,26 @@ namespace BugIssuer.Web.Extensions;
 
 public static class Badge
 {
+    private const string Blue = "badge badge-primary";
+    private const string Gray = "badge badge-secondary";
+    private const string Green = "badge badge-success";
+    private const string Red = "badge badge-danger";
+    private const string Orange = "badge badge-warning";
+    private const string Cyan = "badge badge-info";
+    private const string White = "badge badge-light";
+    private const string Black = "badge badge-dark";
+
+
     public static string UrgencyToBadge(int urgency)
     {
         string badgeClass = urgency switch
         {
-            1 => "badge badge-secondary",
-            2 => "badge badge-success",
-            3 => "badge badge-info",
-            4 => "badge badge-warning",
-            5 => "badge badge-danger",
-            _ => "badge badge-secondary",
+            1 => Gray,
+            2 => Green,
+            3 => Cyan,
+            4 => Orange,
+            5 => Red,
+            _ => Gray
         };
         return badgeClass;
     }
@@ -22,10 +32,10 @@ public static class Badge
     {
         string badgeClass = status switch
         {
-            Status.Open => "badge badge-primary",
-            Status.Ongoing => "badge badge-danger",
-            Status.Closed => "badge badge-success",
-            _ => "badge badge-default",
+            Status.Open => Blue,
+            Status.Ongoing => Red,
+            Status.Closed => Green,
+            _ => Gray,
         };
         return badgeClass;
     }
@@ -34,12 +44,12 @@ public static class Badge
     {
         string badgeClass = label switch
         {
-            Label.None => "badge badge-secondary",
-            Label.NA => "badge badge-info",
-            Label.CIP => "badge badge-primary",
-            Label.Bug => "badge badge-danger",
-            Label.Feature => "badge badge-warning",
-            _ => "badge badge-default",
+            Label.None => Black,
+            Label.NA => White,
+            Label.CIP => Blue,
+            Label.Bug => Red,
+            Label.Feature => Cyan,
+            _ => Gray
         };
         return badgeClass;
     }
