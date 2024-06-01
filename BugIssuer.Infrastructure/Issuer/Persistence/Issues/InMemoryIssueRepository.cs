@@ -44,6 +44,11 @@ public class InMemoryIssueRepository : IIssueRepository
         issues[1].Close();
         issues[2].Assign("Kun");
         issues[3].Assign("Yue");
+
+        issues[3].LabelAs(Label.CIP);
+        issues[4].LabelAs(Label.NA);
+        issues[4].LabelAs(Label.Feature);
+        issues[4].LabelAs(Label.Bug);
     }
 
     public InMemoryIssueRepository(IDateTimeProvider dateTimeProvider)

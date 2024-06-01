@@ -168,4 +168,21 @@ public class Issue : Entity
 
 		return Result.Success;
     }
+
+	public ErrorOr<Success> LabelAs(Label label)
+	{
+        if (Status == Status.Deleted)
+        {
+            return Error.NotFound(description: "The issue has already been deleted.");
+        }
+
+        if (Status == Status.Closed)
+        {
+            return Error.Unauthorized(description: "The issue has already been closed.");
+        }
+
+		Label = label;
+
+		return Result.Success;
+    }
 }

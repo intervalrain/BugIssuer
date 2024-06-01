@@ -31,9 +31,12 @@
                     <h3>@Model.Issue.Title</h3>
                     <div class="badge-container mt-2">
                         <span class="badge badge-secondary">@Model.Issue.Category</span>
+                        <span class="@Badge.LabelToBadge(Model.Issue.Label)">@Model.Issue.Label</span>
                         <span class="@Badge.UrgencyToBadge(Model.Issue.Urgency)">@Model.Issue.Urgency</span>
                         <span class="@Badge.StatusToBadge(Model.Issue.Status)">@Model.Issue.Status</span>
                     </div>
+                    <br />
+                    <h5>Assignee: @Model.Issue.Assignee</h5>
                 </div>
                 <div class="text-muted">
                     <div>@Model.Issue.AuthorId</div>

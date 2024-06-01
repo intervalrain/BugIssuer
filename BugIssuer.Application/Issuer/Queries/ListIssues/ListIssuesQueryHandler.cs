@@ -67,6 +67,8 @@ public class ListIssuesQueryHandler : IRequestHandler<ListIssuesQuery, ErrorOr<L
             "comments_desc" => issues.OrderByDescending(i => i.Comments.Count).ToList(),
             "Assignee" => issues.OrderBy(i => i.Assignee).ToList(),
             "assignee_desc" => issues.OrderByDescending(i => i.Assignee).ToList(),
+            "Label" => issues.OrderBy(i => i.Label).ToList(),
+            "label_desc" => issues.OrderByDescending(i => i.Label).ToList(),
             "Urgency" => issues.OrderBy(i => i.Urgency).ToList(),
             "urgency_desc" => issues.OrderByDescending(i => i.Urgency).ToList(),
             "Status" => issues.OrderBy(i => i.Status).ToList(),

@@ -28,6 +28,7 @@
                 <th><a href="?sortOrder=@(Model.SortOrder == "LastUpdate" ? "lastupdate_desc" : "LastUpdate")&filterStatus=@currentFilter">Last Update</a></th>
                 <th><a href="?sortOrder=@(Model.SortOrder == "Comments" ? "comments_desc" : "Comments")&filterStatus=@currentFilter">Comments</a></th>
                 <th><a href="?sortOrder=@(Model.SortOrder == "Assignee" ? "assignee_desc" : "Assignee")&filterStatus=@currentFilter">Assignee</a></th>
+                <th><a href="?sortOrder=@(Model.SortOrder == "Label" ? "label_desc" : "Label")&filterStatus=@currentFilter">Label</a></th>
                 <th><a href="?sortOrder=@(Model.SortOrder == "Urgency" ? "urgency_desc" : "Urgency")&filterStatus=@currentFilter">Urgency</a></th>
                 <th><a href="?sortOrder=@(Model.SortOrder == "Status" ? "status_desc" : "Status")&filterStatus=@currentFilter">Status</a></th>
             </tr>
@@ -45,6 +46,7 @@
                     <td>@issue.LastUpdateDate</td>
                     <td>@issue.Comments.Count</td>
                     <td>@issue.Assignee</td>
+                    <td><span class="@Badge.LabelToBadge(@issue.Label)">@issue.Label</span></td>
                     <td><span class="@Badge.UrgencyToBadge(issue.Urgency)">@issue.Urgency</span></td>
                     <td><span class="@Badge.StatusToBadge(issue.Status)">@issue.Status</span></td>
                 </tr>
