@@ -1,4 +1,6 @@
-﻿namespace BugIssuer.Application.Common.Security.Users;
+﻿using BugIssuer.Application.Common.Security.Roles;
+
+namespace BugIssuer.Application.Common.Security.Users;
 
 public class CurrentUser
 {
@@ -8,6 +10,6 @@ public class CurrentUser
     public IReadOnlyList<string> Permissions { get; init; }
     public IReadOnlyList<string> Roles { get; init; }
 
-    public bool IsAdmin() => Roles.Contains("admin");
+    public bool IsAdmin() => Roles.Contains(Role.Admin);
 }
 

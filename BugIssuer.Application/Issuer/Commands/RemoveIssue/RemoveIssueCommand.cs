@@ -1,10 +1,8 @@
 ﻿using BugIssuer.Application.Common.Security.Request;
 using BugIssuer.Application.Common.Security.Permissions;
+using BugIssuer.Application.Common.Security.Policies;
 
 using ErrorOr;
-
-using MediatR;
-using BugIssuer.Application.Common.Security.Policies;
 
 namespace BugIssuer.Application.Issuer.Commands.RemoveIssue;
 

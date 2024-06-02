@@ -1,4 +1,6 @@
 ﻿using BugIssuer.Application.Common.Interfaces.Persistence;
+using BugIssuer.Application.Common.Security.Permissions;
+using BugIssuer.Application.Common.Security.Roles;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -6,7 +8,6 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-using BugIssuer.Application.Common.Security.Permissions;
 
 namespace BugIssuer.Web;
 
@@ -35,7 +36,9 @@ public class FakeAuthenticationHandler : AuthenticationHandler<AuthenticationSch
 
         bool isAdmin = _adminProvider.IsAdmin(_userId);
 
-        var roles = isAdmin ? new string[] { "user", "admin" } : new string[] { "user" };
+        var roles = isAdmin
+            ? new string[] { Role.User, Role.Admin }
+            : new string[] { Role.User };
 
         var permissions = new string[]
         {
@@ -46,7 +49,8 @@ public class FakeAuthenticationHandler : AuthenticationHandler<AuthenticationSch
             Permission.Issue.Comment,
             Permission.Issue.Update,
             Permission.Issue.Remove,
-            Permission.Issue.Search
+            Permission.Issue.Search,
+            Permission.Issue.Assign
         };
 
         var claims = new List<Claim>

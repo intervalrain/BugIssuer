@@ -1,7 +1,7 @@
-﻿using BugIssuer.Application.Common.Security.Request;
+﻿using BugIssuer.Domain;
+using BugIssuer.Application.Common.Security.Request;
 using BugIssuer.Application.Common.Security.Permissions;
 
-using BugIssuer.Domain;
 using ErrorOr;
 
 namespace BugIssuer.Application.Issuer.Commands.NewComment;

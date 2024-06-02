@@ -26,6 +26,7 @@
     <None Remove="Common\Security\Permissions\" />
     <None Remove="Common\Security\Policies\" />
     <None Remove="Common\Security\Roles\" />
+    <None Remove="Issuer\Commands\AssignIssue\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Issuer\" />
@@ -49,6 +50,7 @@
     <Folder Include="Common\Security\Permissions\" />
     <Folder Include="Common\Security\Policies\" />
     <Folder Include="Common\Security\Roles\" />
+    <Folder Include="Issuer\Commands\AssignIssue\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="2.0.1" />

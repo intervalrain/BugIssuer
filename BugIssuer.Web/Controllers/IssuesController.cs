@@ -1,5 +1,6 @@
 ﻿using BugIssuer.Application.Common.Interfaces;
 using BugIssuer.Application.Common.Security.Users;
+using BugIssuer.Application.Issuer.Commands.AssignIssue;
 using BugIssuer.Application.Issuer.Commands.CreateIssue;
 using BugIssuer.Application.Issuer.Commands.NewComment;
 using BugIssuer.Application.Issuer.Commands.RemoveIssue;
@@ -78,7 +79,7 @@ public class IssuesController : ApiController
         return result.Match(
             issue => RedirectToAction(nameof(Issue), nameof(Issues), new { id = issue.IssueId }),
             Problem);
-        
+
     }
 
     public IActionResult IssuesPartial(IEnumerable<Issue> issues)
@@ -131,6 +132,17 @@ public class IssuesController : ApiController
     public async Task<IActionResult> NewComment(NewCommentViewModel model)
     {
         var command = new NewCommentCommand(model.IssueId, _currentUser.UserId, model.CommentContent);
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            _ => RedirectToAction(nameof(Issue), new { id = model.IssueId }),
+            Problem);
+    }
+
+    [HttpPost("Assign")]
+    public async Task<IActionResult> Assign(AssignViewModel model)
+    {
+        var command = new AssignIssueCommand(_currentUser.UserId, model.IssueId, model.Assignee);
         var result = await _mediator.Send(command);
 
         return result.Match(

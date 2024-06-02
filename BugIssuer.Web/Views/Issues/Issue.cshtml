@@ -17,9 +17,29 @@
                 <a href="@Url.Action("EditIssue", new { issueId = Model.Issue.IssueId })" class="btn btn-outline-primary">Edit</a>
             }
 
-            @if (Model.Issue.Status != Status.Deleted)
+            @if (Model.Issue.Status != Status.Deleted && (Model.IsAuthor || Model.IsAdmin))
             {
                 <button class="btn btn-danger" id="delete-button">Delete</button>
+            }
+
+            @if (Model.IsAdmin)
+            {
+                if (Model.Issue.Status == Status.Deleted || Model.Issue.Status == Status.Closed)
+                {
+                    <button class="btn btn-outline-primary" id="reopen-button">Reopen</button>
+                }
+                if (Model.Issue.Status != Status.Deleted)
+                {
+                    <button class="btn btn-info" id="assign-button">Assign</button>
+                }
+                if (!string.IsNullOrEmpty(Model.Issue.Assignee))
+                {
+                    <button class="btn btn-outline-info" id="unassign-button">Unassign</button>
+                }
+                if (Model.Issue.Status != Status.Deleted)
+                {
+                    <button class="btn btn-outline-secondary" id="close-button">Close</button>
+                }
             }
         </div>
     </div>
@@ -150,16 +170,16 @@
                     },
                     body: JSON.stringify({ IssueId: id })
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            window.location.href = "/Issues";
-                        } else {
-                            alert("Failed to delete issue");
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error deleting issue', error);
-                    });
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "/Issues";
+                    } else {
+                        alert("Failed to delete issue");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting issue', error);
+                });
             }
         });
 
@@ -195,5 +215,37 @@
                 console.error('Error posting comment', error);
             });
         });
+
+        document.getElementById("assign-button").addEventListener("click", function () {
+            const issueId = document.querySelector("#IssueId").value;
+            const assignee = prompt("Enter assignee: ");
+
+            const formData = {
+                IssueId: issueId,
+                Assignee: assignee
+            };
+            if (assignee) {
+                fetch('/Issues/Assign', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        return response.text().then(text => {
+                            alert("Failed to assign task: " + text);
+                            throw new Error("Failed to assign task: " + text);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error assigning task', error);
+                })
+            }
+        })
     });
 </script>
