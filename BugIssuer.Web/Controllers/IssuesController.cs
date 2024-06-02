@@ -1,9 +1,12 @@
 ﻿using BugIssuer.Application.Common.Interfaces;
 using BugIssuer.Application.Common.Security.Users;
 using BugIssuer.Application.Issuer.Commands.AssignIssue;
+using BugIssuer.Application.Issuer.Commands.CloseIssue;
 using BugIssuer.Application.Issuer.Commands.CreateIssue;
+using BugIssuer.Application.Issuer.Commands.LabelIssue;
 using BugIssuer.Application.Issuer.Commands.NewComment;
 using BugIssuer.Application.Issuer.Commands.RemoveIssue;
+using BugIssuer.Application.Issuer.Commands.ReopenIssue;
 using BugIssuer.Application.Issuer.Commands.UpdateIssue;
 using BugIssuer.Application.Issuer.Queries.GetIssue;
 using BugIssuer.Application.Issuer.Queries.ListIssues;
@@ -143,6 +146,39 @@ public class IssuesController : ApiController
     public async Task<IActionResult> Assign(AssignViewModel model)
     {
         var command = new AssignIssueCommand(_currentUser.UserId, model.IssueId, model.Assignee);
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            _ => RedirectToAction(nameof(Issue), new { id = model.IssueId }),
+            Problem);
+    }
+
+    [HttpPost("Close")]
+    public async Task<IActionResult> Close(int issueId)
+    {
+        var command = new CloseIssueCommand(_currentUser.UserId, issueId);
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            _ => RedirectToAction(nameof(Issue), new { id = issueId }),
+            Problem);
+    }
+
+    [HttpPost("Reopen")]
+    public async Task<IActionResult> Reopen(int issueId)
+    {
+        var command = new ReopenIssueCommand(_currentUser.UserId, issueId);
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            _ => RedirectToAction(nameof(Issue), new { id = issueId }),
+            Problem);
+    }
+
+    [HttpPost("Label")]
+    public async Task<IActionResult> Label(LabelViewModel model)
+    {
+        var command = new LabelIssueCommand(_currentUser.UserId, model.IssueId, model.Label);
         var result = await _mediator.Send(command);
 
         return result.Match(

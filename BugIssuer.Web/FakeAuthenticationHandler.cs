@@ -50,7 +50,10 @@ public class FakeAuthenticationHandler : AuthenticationHandler<AuthenticationSch
             Permission.Issue.Update,
             Permission.Issue.Remove,
             Permission.Issue.Search,
-            Permission.Issue.Assign
+            Permission.Issue.Assign,
+            Permission.Issue.Label,
+            Permission.Issue.Close,
+            Permission.Issue.Reopen,
         };
 
         var claims = new List<Claim>

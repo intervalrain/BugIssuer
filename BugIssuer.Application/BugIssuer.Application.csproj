@@ -27,6 +27,9 @@
     <None Remove="Common\Security\Policies\" />
     <None Remove="Common\Security\Roles\" />
     <None Remove="Issuer\Commands\AssignIssue\" />
+    <None Remove="Issuer\Commands\LabelIssue\" />
+    <None Remove="Issuer\Commands\CloseIssue\" />
+    <None Remove="Issuer\Commands\ReopenIssue\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Issuer\" />
@@ -51,6 +54,9 @@
     <Folder Include="Common\Security\Policies\" />
     <Folder Include="Common\Security\Roles\" />
     <Folder Include="Issuer\Commands\AssignIssue\" />
+    <Folder Include="Issuer\Commands\LabelIssue\" />
+    <Folder Include="Issuer\Commands\CloseIssue\" />
+    <Folder Include="Issuer\Commands\ReopenIssue\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="2.0.1" />

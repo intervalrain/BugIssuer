@@ -14,31 +14,42 @@
         <div>
             @if (Model.IsAuthor || Model.IsAdmin)
             {
-                <a href="@Url.Action("EditIssue", new { issueId = Model.Issue.IssueId })" class="btn btn-outline-primary">Edit</a>
+                if (Model.Issue.Status != Status.Deleted && Model.Issue.Status != Status.Closed)
+                {
+                    <a href="@Url.Action("EditIssue", new { issueId = Model.Issue.IssueId })" class="btn btn-outline-primary">Edit</a>
+                }
+                @if (Model.Issue.Status == Status.Deleted || Model.Issue.Status == Status.Closed)
+                {
+                    <form action="@Url.Action("Reopen", "Issues", new { issueId = Model.Issue.IssueId })" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-outline-primary">Reopen</button>
+                    </form>
+                }
+                if (Model.Issue.Status != Status.Deleted && Model.Issue.Status != Status.Closed)
+                {
+                    <form action="@Url.Action("Close", "Issues", new { issueId = Model.Issue.IssueId })" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-outline-secondary">Close</button>
+                    </form>
+                }
             }
 
-            @if (Model.Issue.Status != Status.Deleted && (Model.IsAuthor || Model.IsAdmin))
+            @if (Model.Issue.Status != Status.Deleted && Model.Issue.Status != Status.Closed && (Model.IsAuthor || Model.IsAdmin))
             {
                 <button class="btn btn-danger" id="delete-button">Delete</button>
             }
 
             @if (Model.IsAdmin)
             {
-                if (Model.Issue.Status == Status.Deleted || Model.Issue.Status == Status.Closed)
+                if (Model.Issue.Status != Status.Deleted && Model.Issue.Status != Status.Closed)
                 {
-                    <button class="btn btn-outline-primary" id="reopen-button">Reopen</button>
+                    <button class="btn btn-warning" id="label-button">Label</button>
                 }
-                if (Model.Issue.Status != Status.Deleted)
+                if (Model.Issue.Status != Status.Deleted && Model.Issue.Status != Status.Closed)
                 {
                     <button class="btn btn-info" id="assign-button">Assign</button>
                 }
-                if (!string.IsNullOrEmpty(Model.Issue.Assignee))
+                if (!string.IsNullOrEmpty(Model.Issue.Assignee) && (Model.Issue.Status != Status.Deleted && Model.Issue.Status != Status.Closed))
                 {
                     <button class="btn btn-outline-info" id="unassign-button">Unassign</button>
-                }
-                if (Model.Issue.Status != Status.Deleted)
-                {
-                    <button class="btn btn-outline-secondary" id="close-button">Close</button>
                 }
             }
         </div>
@@ -99,6 +110,39 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="labelModal" tabindex="-1" role="dialog" aria-labelledby="labelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="labelModalLabel">Select Label</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="labelSelect">Select Label</label>
+                    <select class="form-control" id="labelSelect">
+                        <option value=@Label.None>None</option>
+                        <option value=@Label.Bug>Bug</option>
+                        <option value=@Label.CIP>CIP</option>
+                        <option value=@Label.Feature>Feature</option>
+                        <option value=@Label.NA>NA</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="labelConfirmButton">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
 
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
@@ -244,8 +288,79 @@
                 })
                 .catch(error => {
                     console.error('Error assigning task', error);
-                })
+                });
             }
-        })
+        });
+
+        document.getElementById("label-button").addEventListener("click", function () {
+            $('#labelModal').modal('show');
+        });
+
+        document.getElementById("labelConfirmButton").addEventListener("click", function () {
+            const issueId = document.querySelector("#IssueId").value;
+            const label = document.getElementById("labelSelect").value;
+
+            const formData = {
+                IssueId: issueId,
+                Label: label
+            };
+            if (label) {
+                fetch('/Issues/Label', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        return response.text().then(text => {
+                            alert("Failed to label issue: " + text);
+                            throw new Error("Failed to label issue: " + text);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error labeling issue', error);
+                });
+            }
+        });
+
+
+        document.getElementById("unassign-button").addEventListener("click", function () {
+            const issueId = document.querySelector("#IssueId").value;
+            const assignee = '';
+
+            const formData = {
+                IssueId: issueId,
+                Assignee: assignee
+            };
+            if (formData) {
+                fetch('/Issues/Assign', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        return response.text().then(text => {
+                            alert("Failed to assign task: " + text);
+                            throw new Error("Failed to assign task: " + text);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error assigning task', error);
+                });
+            }
+        });
+
+
     });
 </script>

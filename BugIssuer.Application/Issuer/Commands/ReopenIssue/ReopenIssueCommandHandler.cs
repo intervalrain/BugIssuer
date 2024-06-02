@@ -1,20 +1,21 @@
 ﻿using BugIssuer.Application.Common.Interfaces.Persistence;
 
 using ErrorOr;
+
 using MediatR;
 
-namespace BugIssuer.Application.Issuer.Commands.AssignIssue;
+namespace BugIssuer.Application.Issuer.Commands.ReopenIssue;
 
-public class AssignIssueCommandHandler : IRequestHandler<AssignIssueCommand, ErrorOr<Success>>
+public class ReopenIssueCommandHandler : IRequestHandler<ReopenIssueCommand, ErrorOr<Success>>
 {
     private readonly IIssueRepository _issueRepository;
 
-    public AssignIssueCommandHandler(IIssueRepository issueRepository)
+    public ReopenIssueCommandHandler(IIssueRepository issueRepository)
     {
         _issueRepository = issueRepository;
     }
 
-    public async Task<ErrorOr<Success>> Handle(AssignIssueCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Success>> Handle(ReopenIssueCommand request, CancellationToken cancellationToken)
     {
         var issue = await _issueRepository.GetIssueByIdAsync(request.IssueId, cancellationToken);
 
@@ -23,16 +24,7 @@ public class AssignIssueCommandHandler : IRequestHandler<AssignIssueCommand, Err
             return Error.NotFound(description: "Issue not found.");
         }
 
-        ErrorOr<Success> result = default;
-
-        if (string.IsNullOrEmpty(request.Assignee))
-        {
-            result = issue.Unassign();
-        }
-        else
-        {
-            result = issue.Assign(request.Assignee);
-        }
+        var result = issue.Reopen();
 
         if (result.IsError)
         {

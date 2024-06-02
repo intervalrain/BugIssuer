@@ -1,5 +1,4 @@
-﻿using System;
-namespace BugIssuer.Domain.Enums;
+﻿namespace BugIssuer.Domain.Enums;
 
 public enum Label
 {
